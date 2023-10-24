@@ -20,8 +20,8 @@ export const addCategory = async(req,res,next) => {
     console.log(name,process.env.cloud_name,process.env.api_key,process.env.api_secret);
     if(await categoryModel.findOne({name}))
         return next(new AppError("category already exist", 404));
-    console.log(`hellooooo`)
-    const {secure_url,public_id} = await cloudinary.uploader.upload(req.file.path,
+    console.log(`hellooooo`);
+    const {secure_url, public_id} = await cloudinary.uploader.upload(req.file.path,
         {
             folder: `${process.env.PROJECT_FOLDER}/categories`
         });
