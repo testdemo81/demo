@@ -17,20 +17,16 @@ import cloudinary from "../../services/cloudinary.js";
  */
 export const addCategory = async(req,res,next) => {
     const {name} = req.body;
-    console.log(name,process.env.cloud_name,process.env.api_key,process.env.api_secret);
     if(await categoryModel.findOne({name}))
         return next(new AppError("category already exist", 404));
-    console.log(`hellooooo`);
     const {secure_url, public_id} = await cloudinary.uploader.upload(req.file.path,
         {
             folder: `${process.env.PROJECT_FOLDER}/categories`
         });
-    console.log(secure_url,public_id);
     const category = await categoryModel.create({
         name,
         image:{path:secure_url,publicId:public_id}
     });
-    console.log(category);
     if(!category)
         return next(new AppError("something went wrong try again", 400));
     return res.json({message: "category created successfully", category});

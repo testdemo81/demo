@@ -113,15 +113,13 @@ export const deleteUser = async (req, res,next) => {
     const user = await userModel.findById(req.params.userId);
     if (!user)
         return next(new AppError("user not found", 400));
-    else{
-        const x = await cloudinary.uploader.destroy(user.image.publicId);
-        const y = await user.deleteOne();
-        // console.log(x,y);
-        if(x && y)
-            return res.json({message: "success"});
-        else
-            return next(new AppError("something went wrong try again", 400));
-    }
+
+    const y = await user.deleteOne();
+    if(y)
+        return res.json({message: "success"});
+    else
+        return next(new AppError("something went wrong try again", 400));
+
 };
 
 /**
