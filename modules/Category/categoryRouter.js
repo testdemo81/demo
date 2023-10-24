@@ -169,8 +169,8 @@ categoryRouter.delete("/deletecategory/:categoryId",
  *         description: Internal server error. Something went wrong.
  */
 categoryRouter.get("/getallcategories",
-    // asyncHandler(authentication()),
-    // authorization([accessRoles.admin]),
+    asyncHandler(authentication()),
+    authorization([accessRoles.admin]),
     asyncHandler(categoryController.getAllCategories));
 
 /**
