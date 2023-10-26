@@ -34,7 +34,7 @@ export const signUp = async (req, res,next) => {
         return next(new AppError("email already exist so login", 400));
     const hashedPassword = hashPassword(req.body.password);
     const employeeId = nanoid(5);
-    const data = new Date(req.body.year, req.body.month, req.body.day);
+    const data = new Date(req.body.DOB);
     const {secure_url,public_id} = await cloudinary.uploader.upload(req.file.path,
         {
             folder: `${process.env.PROJECT_FOLDER}/users`
