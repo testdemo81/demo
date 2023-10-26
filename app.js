@@ -4,8 +4,7 @@ import errorHandlerMW from "./middleware/errorHandlerMW.js";
 import swaggerDocs from "./swagger.js";
 import * as indexRouter from "./modules/indexRouter.js"
 import { config } from "dotenv";
-config({ path: "./config/dot.env" });
-
+config({ path: './.env' });
 
 const app = express();
 

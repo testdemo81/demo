@@ -90,8 +90,6 @@ export const deleteCategory = async(req,res,next) => {
     const category = await categoryModel.findById(req.params.categoryId);
     //delete photo from cloudinary
     const flagImg = await cloudinary.uploader.destroy(category.image.publicId);
-    if (flagImg.result !== "ok")
-        return next(new AppError("something went wrong try again", 400));
     //delete category
     if(!category)
         return next(new AppError("category not found", 404));
