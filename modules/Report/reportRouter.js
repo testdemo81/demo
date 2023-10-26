@@ -65,7 +65,7 @@ import accessRoles from "../../EndPoints.js";
  */
 reportRouter.post("/createreport",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor]),
+    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor, accessRoles.supervisor]),
     asyncHandler(reportController.createReport));
 
 /**
@@ -110,7 +110,7 @@ reportRouter.post("/createreport",
  */
 reportRouter.get("/getreport/:reportId",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor]),
+    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor, accessRoles.supervisor]),
     asyncHandler(reportController.getReport));
 
 
@@ -151,7 +151,7 @@ reportRouter.get("/getreport/:reportId",
  */
 reportRouter.get("/getallreports",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor]),
+    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor, accessRoles.supervisor]),
     asyncHandler(reportController.getAllReports));
 
 
@@ -199,7 +199,7 @@ reportRouter.get("/getallreports",
  */
 reportRouter.get("/getallreportsbyuserid/:userId",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor]),
+    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor, accessRoles.supervisor]),
     asyncHandler(reportController.getAllReportByUserId));
 
 
@@ -253,7 +253,7 @@ reportRouter.get("/getallreportsbyuserid/:userId",
  */
 reportRouter.get("/getallreportsbydate",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor]),
+    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor, accessRoles.supervisor]),
     asyncHandler(reportController.getAllReportByDate));
 
 export default reportRouter

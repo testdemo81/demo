@@ -92,14 +92,11 @@ export const deleteCategory = async(req,res,next) => {
     const flagImg = await cloudinary.uploader.destroy(category.image.publicId);
     if (flagImg.result !== "ok")
         return next(new AppError("something went wrong try again", 400));
-    //delete category from DB
-    if(!flag)
-        return next(new AppError("something went wrong try again", 400));
     //delete category
     if(!category)
         return next(new AppError("category not found", 404));
     const flag = await category.deleteOne();
-    if (flag.deletedCount ===1)
+    if (flag)
         return res.status(200).json({message: "category deleted successfully"});
     return next(new AppError("something went wrong try again", 400));
 };

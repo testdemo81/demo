@@ -143,7 +143,7 @@ export const deleteProduct = async (req, res ,next) => {
     if (!product)
         return next(new AppError("product not found", 400));
     const flag = await product.deleteOne();
-    if (flag.deletedCount ===1)
+    if (flag)
         return res.json({message: "success"});
     return next(new AppError("something went wrong try again", 400));
 };

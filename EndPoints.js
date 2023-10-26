@@ -3,6 +3,7 @@ const accessRoles ={
     seller: "seller",
     tailor:  "tailor",
     cashier: "cashier",
+    supervisor: "supervisor",
 };
 
 
