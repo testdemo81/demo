@@ -17,11 +17,7 @@ import moment from "moment";
  * @throws {AppError} If no task is found with the provided task ID, if the user is not assigned to the task, or if something goes wrong during report creation.
  */
 export const createReport = async (req, res, next) => {
-    const task = await taskModel.findById(req.body.taskID);
-    if (!task)
-        return next(new AppError("No task found with that ID", 404));
-    if (task.assignedTo.toString() !== req.body.userID)
-        return next(new AppError("You are not assigned to this task so cant write Report about it", 403));
+    req.body.userID = req.user._id;
     const report = await reportModel.create(req.body);
     if (!report)
         return next(new AppError("something went wrong try again", 500));

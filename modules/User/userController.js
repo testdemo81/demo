@@ -139,26 +139,31 @@ export const updateUser = async (req, res,next) => {
     const user = await userModel.findById(userId);
     if (!user)
         return next(new AppError("user not found", 400));
-    else{
-        if(req.file) {
-            const { result } = await cloudinary.uploader.destroy(user.image.publicId);
-            if (result !== "ok")
-                return next(new AppError("something went wrong try again", 400));
-
-            const {secure_url, public_id} = await cloudinary.uploader.upload(req.file.path,
-                {
-                    folder: `${process.env.PROJECT_FOLDER}/users`
-                });
-            const newImage = {path: secure_url, publicId: public_id};
-            user.image = newImage;
-            await user.save();
-        }
-        const updatedUser = await userModel.findByIdAndUpdate(userId, req.body, {new: true});
-        if(updatedUser)
-            return res.status(200).json({message: "success", updatedUser});
-        else
-            return next(new AppError("something went wrong try again", 400));
+    if (req.file) {
+        const {secure_url,public_id} = await cloudinary.uploader.upload(req.file.path,
+            {
+                folder: `${process.env.PROJECT_FOLDER}/users`
+            });
+        user.image = {path:secure_url,publicId:public_id};
+        await user.save();
+        delete req.body.image;
     }
+    const updatedUser = await user.updateOne(req.body);
+    if (!updatedUser)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({message: "success"});
+
+
+
+
+
+};
+
+export const getUserInfoWhileLogin = async (req, res,next) => {
+    const user = await userModel.findById(req.user.id).select("-password -createdAt -updatedAt -__v")
+    if (!user)
+        return next(new AppError("user not found", 400));
+    return res.status(200).json({message: "success",user});
 };
 
 

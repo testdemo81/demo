@@ -5,6 +5,7 @@ import authentication from "../../middleware/authentication.js";
 import asyncHandler from "../../utils/ErrorHandling/asyncHandler.js";
 import {fileUpload} from "../../services/multer.js";
 import accessRoles from "../../EndPoints.js";
+import {getUserInfoWhileLogin} from "./userController.js";
 
 
 const userRouter = Router();
@@ -283,6 +284,10 @@ userRouter.patch("/returnproduct/:invoiceId",
     asyncHandler(userController.returnProduct));
 
 
+userRouter.get("/profile",
+    asyncHandler(authentication()),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller]),
+    asyncHandler(userController.getUserInfoWhileLogin));
 
 
 export default userRouter;
