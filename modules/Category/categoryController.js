@@ -52,22 +52,15 @@ export const updateCategory = async(req,res,next) => {
         return next(new AppError("category not found", 404));
     else{
         if (req.file){
-            const { result } = await cloudinary.uploader.destroy(category.image.publicId);
-            if (result !== "ok")
-                return next(new AppError("something went wrong try again", 400));
+            await cloudinary.uploader.destroy(category.image.publicId);
 
             const {secure_url,public_id} = await cloudinary.uploader.upload(req.file.path,
                 {
                     folder: `${process.env.PROJECT_FOLDER}/categories`
                 });
-            category.image.path = secure_url;
-            category.image.publicId = public_id;
-            await category.save();
+            req.body.image = {path: secure_url,publicId:public_id};
         }
-    }
-    if (req.body.name) {
-        category.name = req.body.name;
-        await category.save();
+        await categoryModel.findByIdAndUpdate(req.params.categoryId,req.body,{new:true});
     }
     return res.status(201).json({message: "category updated successfully" });
 };

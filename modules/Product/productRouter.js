@@ -6,6 +6,7 @@ import authentication from "../../middleware/authentication.js";
 import authorization from "../../middleware/authorization.js";
 import accessRoles from "../../EndPoints.js";
 import productModel from "../../DB/models/productModel.js";
+import {fileUpload} from "../../services/multer.js";
 
 
 /**
@@ -41,6 +42,7 @@ import productModel from "../../DB/models/productModel.js";
 productRouter.post("/addproduct",
     asyncHandler(authentication()),
     authorization([accessRoles.admin]),
+    fileUpload({}).single("image"),
     asyncHandler(productController.addProduct));
 
 /**

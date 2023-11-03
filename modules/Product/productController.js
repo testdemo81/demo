@@ -2,6 +2,7 @@ import productModel from "../../DB/models/productModel.js";
 import categoryModel from "../../DB/models/categoryModel.js";
 import AppError from "../../utils/ErrorHandling/AppError.js";
 import {qrCode_Function} from "../../services/qrcode.js";
+import cloudinary from "../../services/cloudinary.js";
 
 
 
@@ -52,9 +53,15 @@ import {qrCode_Function} from "../../services/qrcode.js";
 // });
 export const addProduct = async (req, res ,next) => {
     const category = await categoryModel.findOne({name:req.body.category});
+    console.log(req.body.category);
     if (!category)
         return next(new AppError(`category is not exist add it as category then add the product`, 400));
     req.body.category = category._id;
+    const {secure_url, public_id} = await cloudinary.uploader.upload(req.file.path,
+        {
+            folder: `${process.env.PROJECT_FOLDER}/products`
+        });
+    req.body.image = {path:secure_url,publicId:public_id};
     const product = await productModel.create(req.body);
     if (!product)
         return next(new AppError("something went wrong try again", 400));
@@ -109,6 +116,17 @@ export const updateProduct = async (req, res ,next) => {
                 return next(new AppError(
                     `category is not exist add it as category then add the product`,400));
         }
+    if (req.file) {
+        const { result } = await cloudinary.uploader.destroy(product.image.publicId);
+        if (result !== "ok")
+            return next(new AppError("something went wrong try again", 400));
+
+        const {secure_url, public_id} = await cloudinary.uploader.upload(req.file.path,
+            {
+                folder: `${process.env.PROJECT_FOLDER}/products`
+            });
+        req.body.image = {path: secure_url, publicId: public_id};
+    }
 
     // const updatedProduct = await productModel.findByIdAndUpdate(req.params.productId,req.body,{new:true});
     const flag = await product.updateOne(req.body);

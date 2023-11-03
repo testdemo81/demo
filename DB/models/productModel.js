@@ -87,6 +87,16 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: [true,"size is required"],
     },
+    image: {
+        path: {
+            type: String,
+            required: [true, 'Image path required'],
+        },
+        publicId: {
+            type: String,
+            required: [true, 'Image publicId required'],
+        }
+    }
 }, {
     timestamps: true,
 })
