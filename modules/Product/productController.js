@@ -51,15 +51,10 @@ import {qrCode_Function} from "../../services/qrcode.js";
 //     ]
 // });
 export const addProduct = async (req, res ,next) => {
-    const categories = req.body.categories;
-    for (let i = 0; i < categories.length; i++) {
-        const category = await categoryModel.findOne({name:categories[i]});
-        if (!category)
-            return next(new AppError(
-                `category ${categories[i]} is not exist add it as category then add the product`
-                , 400));
-    }
-
+    const category = await categoryModel.findOne({name:req.body.category});
+    if (!category)
+        return next(new AppError(`category is not exist add it as category then add the product`, 400));
+    req.body.category = category._id;
     const product = await productModel.create(req.body);
     if (!product)
         return next(new AppError("something went wrong try again", 400));
@@ -108,16 +103,13 @@ export const updateProduct = async (req, res ,next) => {
     const product = await productModel.findById(req.params.productId);
     if (!product)
         return next(new AppError("product not found", 400));
-    if(req.body.categories){
-        const categories = req.body.categories;
-        for (let i = 0; i < categories.length; i++) {
-            const category = await categoryModel.findById(categories[i]);
+    if(req.body.category){
+            const category = await categoryModel.findOne({name:req.body.category});
             if (!category)
                 return next(new AppError(
-                    `category ${categories[i]} is not exist add it as category then add the product`
-                    , 400));
+                    `category is not exist add it as category then add the product`,400));
         }
-    }
+
     // const updatedProduct = await productModel.findByIdAndUpdate(req.params.productId,req.body,{new:true});
     const flag = await product.updateOne(req.body);
     if(flag.modifiedCount === 0)

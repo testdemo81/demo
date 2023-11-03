@@ -62,6 +62,10 @@ const invoiceSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'totalPrice required'],
     },
+    tailored: {
+        type: Boolean,
+        default: false,
+    },
 },{
     timestamps: true,
 });

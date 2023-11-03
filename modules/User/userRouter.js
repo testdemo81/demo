@@ -5,7 +5,7 @@ import authentication from "../../middleware/authentication.js";
 import asyncHandler from "../../utils/ErrorHandling/asyncHandler.js";
 import {fileUpload} from "../../services/multer.js";
 import accessRoles from "../../EndPoints.js";
-import {getUserInfoWhileLogin} from "./userController.js";
+import {addClientCardInfo, createClient} from "./userController.js";
 
 
 const userRouter = Router();
@@ -226,20 +226,20 @@ userRouter.delete("/:userId",
  */
 userRouter.patch("/:userId",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller]),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     fileUpload({}).single("image"),
     asyncHandler(userController.updateUser));
 
 
 userRouter.get("/getallusers",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller]),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.getAllUsers));
 
 
 userRouter.get("/getuser/:userId",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller]),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.getUserById));
 
 
@@ -275,19 +275,29 @@ userRouter.get("/getuser/:userId",
  */
 userRouter.post("/buy",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller]),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.buyProduct));
 
 userRouter.patch("/returnproduct/:invoiceId",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller]),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.returnProduct));
 
 
 userRouter.get("/profile",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller]),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.getUserInfoWhileLogin));
+
+userRouter.post("/addclient",
+    asyncHandler(authentication()),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
+    asyncHandler(userController.createClient));
+
+userRouter.post("/addcart/:phone",
+    asyncHandler(authentication()),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
+    asyncHandler(addClientCardInfo));
 
 
 export default userRouter;

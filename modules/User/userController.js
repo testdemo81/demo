@@ -12,6 +12,7 @@ import {hashPassword} from "../../utils/hashing/hashPassword.js";
 import {compareHashedPassword} from "../../utils/hashing/compareHashedPassword.js";
 import {nanoid} from "nanoid";
 import {createToken} from "../../utils/token/createToken.js";
+import {exp} from "qrcode/lib/core/galois-field.js";
 
 
 
@@ -167,12 +168,30 @@ export const getUserInfoWhileLogin = async (req, res,next) => {
 };
 
 
+export const createClient = async (req, res,next) => {
+    const client = await clientModel.create(req.body);
+    if (!client)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({message: "success",client});
+};
+
+export const addClientCardInfo = async (req, res,next) => {
+    const client = await clientModel.findOne({phone:req.params.phone});
+    if (!client)
+        return next(new AppError("client not found add it first", 400));
+    req.body.clientID = client._id;
+    const card = await cardInfoModel.create(req.body);
+    if (!card)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({message: "success",card});
+};
+
 export const buyProduct = async (req, res,next) => {
     const client = await clientModel.findOne({phone:req.body.phone});
     if (!client)
         return next(new AppError("client not found add it first", 400));
 
-    let card = await cardInfoModel.findOne({clientId:client._id});
+    let card = await cardInfoModel.findOne({clientID:client._id});
     if (!card)
         return next(new AppError("client's Card not found add it first", 400));
 
@@ -191,18 +210,6 @@ export const buyProduct = async (req, res,next) => {
         const paymentMethod = req.body.paymentMethod;
         const priceAfterDiscount = product.price - (product.price * product.discount / 100);
 
-        /*card*/
-        if (!card) {
-            const newCard = await cardInfoModel.create({
-                clientId: client._id,
-                creditCardNumber: req.body.creditCardNumber,
-                cvv: req.body.cvv,
-                creditCardExpiryDate: req.body.creditCardExpiryDate,
-                creditCardType: req.body.creditCardType
-            })
-            card = newCard;
-        }
-
 
         const invoice = await invoiceModel.create({
             invoiceId: nanoid(6),
@@ -210,7 +217,7 @@ export const buyProduct = async (req, res,next) => {
             totalPrice: priceAfterDiscount * quantity,
             client: client._id,
             numberOfItems: quantity,
-            userId: req.user._id
+            userId: req.user._id,
         });
         if (!invoice)
             return next(new AppError("something went wrong try again", 404));
@@ -228,42 +235,30 @@ export const buyProduct = async (req, res,next) => {
         product.stock -= quantity;
         await product.save();
 
-        /* Report Creation */
-        const report = await reportModel.create({
-            name: req.body.reportName,
-            description: req.body.reportDescription,
-            userID: req.user._id
-        });
+        // /* Report Creation */
+        // const report = await reportModel.create({
+        //     name: req.body.reportName,
+        //     description: req.body.reportDescription,
+        //     userID: req.user._id
+        // });
 
-
-
-
-        return res.status(200).json({message: "success", invoice, transaction, report});
+        return res.status(200).json({message: "success", invoice, transaction, /*report*/});
     }
     else {
         const tailoring = await tailoringModel.create({
             productId: product._id,
             description: req.body.description,
-            price: req.body.price
+            price: req.body.price,
+            clientId: client._id,
         });
+
+
+
         if (!tailoring)
             return next(new AppError("something went wrong try again", 404));
 
-
         const paymentMethod = req.body.paymentMethod;
         const priceAfterDiscount = product.price - (product.price * product.discount / 100);
-
-        /*card*/
-        if (!card) {
-            const newCard = await cardInfoModel.create({
-                clientId: client._id,
-                creditCardNumber: req.body.creditCardNumber,
-                cvv: req.body.cvv,
-                creditCardExpiryDate: req.body.creditCardExpiryDate,
-                creditCardType: req.body.creditCardType
-            })
-            card = newCard;
-        };
 
         const invoice = await invoiceModel.create({
             invoiceId: nanoid(6),
@@ -271,7 +266,8 @@ export const buyProduct = async (req, res,next) => {
             totalPrice: priceAfterDiscount * quantity + (tailoring.price *quantity),
             client: client._id,
             numberOfItems: quantity,
-            userId: req.user._id
+            userId: req.user._id,
+            tailored: true,
         });
         if (!invoice)
             return next(new AppError("something went wrong try again", 404));
@@ -291,13 +287,13 @@ export const buyProduct = async (req, res,next) => {
         product.stock -= quantity;
         await product.save();
 
-        /* Report Creation */
-        const report = await reportModel.create({
-            name: req.body.reportName,
-            description: req.body.reportDescription,
-            userID: req.user._id
-        });
-        return res.status(200).json({message: "success", invoice, transaction, report});
+        // /* Report Creation */
+        // const report = await reportModel.create({
+        //     name: req.body.reportName,
+        //     description: req.body.reportDescription,
+        //     userID: req.user._id
+        // });
+        return res.status(200).json({message: "success", invoice, transaction, /*report*/});
     }
 };
 
@@ -334,9 +330,7 @@ export const returnProduct = async (req, res,next) => {
         return next(new AppError("transaction not found", 400));
 
 
-    const tailoring = await tailoringModel.findOne(
-        {productId:invoice.productId, clientId:transaction.clientId});
-    if (tailoring)
+    if (invoice.tailored)
         return next(new AppError("this product is tailored already so cant return", 400));
 
     // if (parseInt(invoice.userId) !== parseInt(req.user._id))
@@ -373,7 +367,7 @@ export const returnProduct = async (req, res,next) => {
 
 
     return res.status(200).json({message: "success",
-        product:product.select("-createdAt -updatedAt -_id -__v"),
+        product:product,
         invoice, // populate on userId
         "Stock After Return":product.stock,
         "Returned Pieces":invoice.numberOfItems,
