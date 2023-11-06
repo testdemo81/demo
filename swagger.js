@@ -9,6 +9,19 @@ const options = {
             description: 'First Job APIs ',
             version: '1.0.0',
         },
+        // servers: [
+        //     {
+        //         url: `http://localhost:3000`,
+        //         description: 'Development server',
+        //     },
+        // ],
+        // license: {
+        //     name: 'MIT',
+        //     url: 'https://spdx.org/licenses/MIT.html',
+        // },
+        // schemes: ['http', 'https'],
+        // consumes: ['application/json'],
+        // produces: ['application/json'],
     },
     // looks for configuration in specified directories
     apis: ["./DB/models/*.js","./modules/**/*.js",],

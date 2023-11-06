@@ -192,9 +192,11 @@ export const buyProduct = async (req, res,next) => {
         return next(new AppError("client not found add it first", 400));
 
     let card = await cardInfoModel.findOne({clientID:client._id});
-    if (!card)
-        return next(new AppError("client's Card not found add it first", 400));
 
+    if(req.body.paymentMethod === "card") {
+        if (!card)
+            return next(new AppError("client's Card not found add it first", 400));
+    }
     const {name, quantity, color, size}  = req.body;
     const product = await productModel.findOne({name,color,size});
 
@@ -235,12 +237,6 @@ export const buyProduct = async (req, res,next) => {
         product.stock -= quantity;
         await product.save();
 
-        // /* Report Creation */
-        // const report = await reportModel.create({
-        //     name: req.body.reportName,
-        //     description: req.body.reportDescription,
-        //     userID: req.user._id
-        // });
 
         return res.status(200).json({message: "success", invoice, transaction, /*report*/});
     }
@@ -373,6 +369,43 @@ export const returnProduct = async (req, res,next) => {
         "Returned Pieces":invoice.numberOfItems,
         "Total Price":invoice.totalPrice,
     });
+};
+
+export const getAllClients = async (req, res,next) => {
+    const page = parseInt(req.query.page) || 1; // Extract the page number from the query parameter
+    const pageSize = parseInt(req.query.pageSize) || 10; // Extract the page size from the query parameter
+
+    const totalDocuments = await productModel.countDocuments();
+    const totalPages = Math.ceil(totalDocuments / pageSize);
+
+    const skipDocuments = (page - 1) * pageSize;
+
+    const clients = await clientModel.find()
+        .skip(skipDocuments)
+        .limit(pageSize);
+    if (!clients)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({
+        message: "success",
+        clients,
+        currentPage: page,
+        totalPages,
+        pageSize
+    });
+};
+
+export const getClientByPhone = async (req, res,next) => {
+    const client = await clientModel.findOne({phone:req.params.phone});
+    if (!client)
+        return next(new AppError("client not found add it first", 400));
+    return res.status(200).json({message: "success",client});
+};
+
+export const getClientById = async (req, res,next) => {
+    const client = await clientModel.findById(req.params.clientId);
+    if (!client)
+        return next(new AppError("client not found add it first", 400));
+    return res.status(200).json({message: "success",client});
 };
 
 

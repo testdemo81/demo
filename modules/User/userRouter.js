@@ -294,10 +294,26 @@ userRouter.post("/addclient",
     authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.createClient));
 
-userRouter.post("/addcart/:phone",
+userRouter.post("/addcardinfo/:phone",
     asyncHandler(authentication()),
     authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(addClientCardInfo));
+
+userRouter.get("/getallclients",
+    asyncHandler(authentication()),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
+    asyncHandler(userController.getAllClients));
+
+userRouter.get("/getclient/:phone",
+    asyncHandler(authentication()),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
+    asyncHandler(userController.getClientByPhone));
+
+userRouter.get("/getclientbyid/:clientId",
+    asyncHandler(authentication()),
+    authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
+    asyncHandler(userController.getClientById));
+
 
 
 export default userRouter;
