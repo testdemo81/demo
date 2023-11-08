@@ -294,7 +294,7 @@ userRouter.post("/addclient",
     authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.createClient));
 
-userRouter.post("/addcardinfo/:phone",
+userRouter.post("/addcardinfo",
     asyncHandler(authentication()),
     authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(addClientCardInfo));

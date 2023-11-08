@@ -176,7 +176,7 @@ export const createClient = async (req, res,next) => {
 };
 
 export const addClientCardInfo = async (req, res,next) => {
-    const client = await clientModel.findOne({phone:req.params.phone});
+    const client = await clientModel.findOne({phone:req.body.phone});
     if (!client)
         return next(new AppError("client not found add it first", 400));
     req.body.clientID = client._id;
@@ -197,13 +197,16 @@ export const buyProduct = async (req, res,next) => {
         if (!card)
             return next(new AppError("client's Card not found add it first", 400));
     }
-    const {name, quantity, color, size}  = req.body;
-    const product = await productModel.findOne({name,color,size});
+    // const {name, quantity, color, size}  = req.body;
+    // const product = await productModel.findOne({name,color,size});
+    const product = await productModel.findById(req.body.productId);
+
 
     if (!product)
         return next(new AppError("product not found", 400));
 
     //check if product in stock enough for the quantity
+    const {quantity} = req.body;
     if (product.stock < quantity)
         return next(new AppError("product not available in this quantity", 400));
 
