@@ -5,7 +5,6 @@ import authentication from "../../middleware/authentication.js";
 import asyncHandler from "../../utils/ErrorHandling/asyncHandler.js";
 import {fileUpload} from "../../services/multer.js";
 import accessRoles from "../../EndPoints.js";
-import {addClientCardInfo, createClient} from "./userController.js";
 
 
 const userRouter = Router();
@@ -278,7 +277,7 @@ userRouter.post("/buy",
     authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.buyProduct));
 
-userRouter.patch("/returnproduct/:invoiceId",
+userRouter.patch("/returnproduct",
     asyncHandler(authentication()),
     authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.returnProduct));

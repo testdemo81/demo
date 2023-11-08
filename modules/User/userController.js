@@ -320,7 +320,7 @@ export const getUserById = async (req, res,next) => {
 
 
 export const returnProduct = async (req, res,next) => {
-    const invoice = await invoiceModel.findOne({invoiceId:req.params.invoiceId})
+    const invoice = await invoiceModel.findOne({invoiceId:req.body.invoiceId})
         .populate({path: "userId", select: "name"})
         .populate({path: "productId", select: "name"});
 
