@@ -194,9 +194,21 @@ export const buyProduct = async (req, res,next) => {
     let card = await cardInfoModel.findOne({clientID:client._id});
 
     if(req.body.paymentMethod === "card") {
-        if (!card)
+        if (!card) {
             return next(new AppError("client's Card not found add it first", 400));
+            const newCard = await cardInfoModel.create({
+                clientID: client._id,
+                creditCardNumber: req.body.creditCardNumber,
+                creditCardExpiryDate: req.body.creditCardExpiryDate,
+                creditCardCVV: req.body.creditCardCVV,
+                creditCardType: req.body.creditCardType
+            });
+            if (!newCard)
+                return next(new AppError("something went wrong try again", 400));
+            card = newCard;
+        }
     }
+
     // const {name, quantity, color, size}  = req.body;
     // const product = await productModel.findOne({name,color,size});
     const product = await productModel.findById(req.body.productId);
@@ -286,12 +298,6 @@ export const buyProduct = async (req, res,next) => {
         product.stock -= quantity;
         await product.save();
 
-        // /* Report Creation */
-        // const report = await reportModel.create({
-        //     name: req.body.reportName,
-        //     description: req.body.reportDescription,
-        //     userID: req.user._id
-        // });
         return res.status(200).json({message: "success", invoice, transaction, /*report*/});
     }
 };
