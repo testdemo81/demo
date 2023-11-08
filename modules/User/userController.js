@@ -189,13 +189,13 @@ export const addClientCardInfo = async (req, res,next) => {
 export const buyProduct = async (req, res,next) => {
     const client = await clientModel.findOne({phone:req.body.phone});
     if (!client)
-        return next(new AppError("client not found add it first", 400));
+        return next(new AppError("client not found add it first", 404));
 
     let card = await cardInfoModel.findOne({clientID:client._id});
 
     if(req.body.paymentMethod === "card") {
         if (!card) {
-            return next(new AppError("client's Card not found add it first", 400));
+            return next(new AppError("client's Card not found add it first", 401));
             const newCard = await cardInfoModel.create({
                 clientID: client._id,
                 creditCardNumber: req.body.creditCardNumber,
