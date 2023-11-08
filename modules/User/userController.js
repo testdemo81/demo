@@ -319,7 +319,7 @@ export const getUserById = async (req, res,next) => {
 
 
 export const returnProduct = async (req, res,next) => {
-    const invoice = await invoiceModel.findOne({invoiceId:req.params.invoiceId})
+    const invoice = await invoiceModel.findOne({invoiceId:req.body.invoiceId})
         .populate({path: "userId", select: "name"})
         .populate({path: "productId", select: "name"});
 
@@ -346,8 +346,8 @@ export const returnProduct = async (req, res,next) => {
 
     const flagTransaction = await transaction.deleteOne();
 
-    if (flagTransaction.deletedCount === 0)
-        return next(new AppError("this transaction is already returned", 400));
+    // if (flagTransaction.deletedCount === 0)
+    //     return next(new AppError("this transaction is already returned", 400));
 
     const retrievedProduct = await retrievedModel.create({
         invoiceId: invoice._id,
@@ -364,8 +364,8 @@ export const returnProduct = async (req, res,next) => {
     await product.save();
 
     const flagInvoice = await invoice.deleteOne();
-    if (flagInvoice.deletedCount === 0)
-        return next(new AppError("this invoice is already returned", 400));
+    // if (flagInvoice.deletedCount === 0)
+    //     return next(new AppError("this invoice is already returned", 400));
 
 
     return res.status(200).json({message: "success",

@@ -277,7 +277,7 @@ userRouter.post("/buy",
     authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.buyProduct));
 
-userRouter.patch("/returnproduct/:invoiceId",
+userRouter.post("/returnproduct",
     asyncHandler(authentication()),
     authorization([accessRoles.admin,accessRoles.tailor,accessRoles.cashier, accessRoles.seller, accessRoles.supervisor]),
     asyncHandler(userController.returnProduct));
