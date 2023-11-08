@@ -53,7 +53,6 @@ import cloudinary from "../../services/cloudinary.js";
 // });
 export const addProduct = async (req, res ,next) => {
     const category = await categoryModel.findOne({name:req.body.category});
-    console.log(req.body.category);
     if (!category)
         return next(new AppError(`category is not exist add it as category then add the product`, 400));
     req.body.category = category._id;
@@ -62,11 +61,22 @@ export const addProduct = async (req, res ,next) => {
             folder: `${process.env.PROJECT_FOLDER}/products`
         });
     req.body.image = {path:secure_url,publicId:public_id};
+    const qrCodeProduct = {
+        name: req.body.name,
+        price: req.body.price,
+        category: req.body.category,
+        discount: req.body.discount,
+        stock: req.body.stock,
+        color: req.body.color,
+        size: req.body.size,
+        image: req.body.image
+    }
+    const qrCode = await qrCode_Function({data:JSON.stringify(qrCodeProduct)});
+    req.body.qrCode = qrCode;
     const product = await productModel.create(req.body);
     if (!product)
         return next(new AppError("something went wrong try again", 400));
 
-    const qrCode = await qrCode_Function({data:JSON.stringify(product)});
     return res.json({message: "success",product,qrCode});
 };
 

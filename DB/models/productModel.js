@@ -96,7 +96,11 @@ const productSchema = new mongoose.Schema({
             type: String,
             required: [true, 'Image publicId required'],
         }
-    }
+    },
+    qrCode: {
+        type: String,
+        required: [true, 'qrCode required'],
+    },
 }, {
     timestamps: true,
 })

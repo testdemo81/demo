@@ -12,7 +12,6 @@ import {hashPassword} from "../../utils/hashing/hashPassword.js";
 import {compareHashedPassword} from "../../utils/hashing/compareHashedPassword.js";
 import {nanoid} from "nanoid";
 import {createToken} from "../../utils/token/createToken.js";
-import {exp} from "qrcode/lib/core/galois-field.js";
 
 
 
@@ -320,9 +319,10 @@ export const getUserById = async (req, res,next) => {
 
 
 export const returnProduct = async (req, res,next) => {
-    const invoice = await invoiceModel.findOne({invoiceId:req.body.invoiceId})
+    const invoice = await invoiceModel.findOne({invoiceId:req.params.invoiceId})
         .populate({path: "userId", select: "name"})
         .populate({path: "productId", select: "name"});
+
 
     // const invoice = await invoiceModel.findOne({invoiceId:req.params.invoiceId})
     //     .populate({path: "userId", select: "name"}, {path: "productId", select: "name"});
@@ -342,8 +342,6 @@ export const returnProduct = async (req, res,next) => {
     //     return next(new AppError("you are not allowed to return this product", 400));
     if(invoice.createdAt.getDate() - new Date().getDate() > 14 && req.user.role !== "admin")
         return next(new AppError("you can't return this product because the return period is over so ask your admin to return it", 400));
-
-
 
 
     const flagTransaction = await transaction.deleteOne();
@@ -368,7 +366,6 @@ export const returnProduct = async (req, res,next) => {
     const flagInvoice = await invoice.deleteOne();
     if (flagInvoice.deletedCount === 0)
         return next(new AppError("this invoice is already returned", 400));
-
 
 
     return res.status(200).json({message: "success",
