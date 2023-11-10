@@ -133,6 +133,19 @@ export const updateProduct = async (req, res ,next) => {
             });
         req.body.image = {path: secure_url, publicId: public_id};
     }
+    const qrCodeProduct = {
+        name: req.body.name,
+        price: req.body.price,
+        category: req.body.category,
+        discount: req.body.discount,
+        stock: req.body.stock,
+        color: req.body.color,
+        size: req.body.size,
+        image: req.body.image
+    }
+    const qrCode = await qrCode_Function({data:JSON.stringify(qrCodeProduct)});
+    req.body.qrCode = qrCode;
+
 
     const updatedProduct = await productModel.findByIdAndUpdate(req.params.productId,req.body,{new:true});
     return res.json({message: "success","product":updatedProduct});
