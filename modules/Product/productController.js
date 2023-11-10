@@ -127,10 +127,6 @@ export const updateProduct = async (req, res ,next) => {
                     `category is not exist add it as category then add the product`,400));
         }
     if (req.file) {
-        const { result } = await cloudinary.uploader.destroy(product.image.publicId);
-        if (result !== "ok")
-            return next(new AppError("something went wrong try again", 400));
-
         const {secure_url, public_id} = await cloudinary.uploader.upload(req.file.path,
             {
                 folder: `${process.env.PROJECT_FOLDER}/products`
@@ -138,11 +134,8 @@ export const updateProduct = async (req, res ,next) => {
         req.body.image = {path: secure_url, publicId: public_id};
     }
 
-    // const updatedProduct = await productModel.findByIdAndUpdate(req.params.productId,req.body,{new:true});
-    const flag = await product.updateOne(req.body);
-    if(flag.modifiedCount === 0)
-        return next(new AppError("something went wrong try again", 400));
-    return res.json({message: "success",product});
+    const updatedProduct = await productModel.findByIdAndUpdate(req.params.productId,req.body,{new:true});
+    return res.json({message: "success","product":updatedProduct});
 };
 
 /**
