@@ -86,6 +86,7 @@ productRouter.post("/addproduct",
 productRouter.patch("/updateproduct/:productId",
     asyncHandler(authentication()),
     authorization([accessRoles.admin]),
+    fileUpload({}).single("image"),
     asyncHandler(productController.updateProduct));
 
 /**
