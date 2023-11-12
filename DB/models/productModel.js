@@ -70,6 +70,10 @@ const productSchema = new mongoose.Schema({
         required: [true,"price of product is required"],
         default: 1
     },
+    isDiscount: {
+        type: Boolean,
+        default: false
+    },
     discount: {
         type: Number,
         default: 0
@@ -97,10 +101,15 @@ const productSchema = new mongoose.Schema({
             required: [true, 'Image publicId required'],
         }
     },
-    qrCode: {
-        type: String,
-        required: [true, 'qrCode required'],
+    barCodeNumber:{
+        indexes: true,
+        unique: true,
+        type: Number,
+        required: [true, 'barCodeNumber required'],
+
+
     },
+
 }, {
     timestamps: true,
 })

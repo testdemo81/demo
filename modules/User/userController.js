@@ -223,8 +223,12 @@ export const buyProduct = async (req, res,next) => {
 
     // Step 3: Check if the product is available for tailoring
     if (req.body.tailoring === "no" || req.body.tailoring === "No" || req.body.tailoring === "NO"){
+        let priceAfterDiscount = 0;
         const paymentMethod = req.body.paymentMethod;
-        const priceAfterDiscount = product.price - (product.price * product.discount / 100);
+        if (product.isDiscount === true)
+            priceAfterDiscount = product.price - (product.price * product.discount / 100);
+        else
+            priceAfterDiscount = product.price;
 
 
         const invoice = await invoiceModel.create({
@@ -267,8 +271,12 @@ export const buyProduct = async (req, res,next) => {
         if (!tailoring)
             return next(new AppError("something went wrong try again", 404));
 
+        let priceAfterDiscount = 0;
         const paymentMethod = req.body.paymentMethod;
-        const priceAfterDiscount = product.price - (product.price * product.discount / 100);
+        if (product.isDiscount === true)
+            priceAfterDiscount = product.price - (product.price * product.discount / 100);
+        else
+            priceAfterDiscount = product.price;
 
         const invoice = await invoiceModel.create({
             invoiceId: nanoid(6),
