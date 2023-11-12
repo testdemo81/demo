@@ -46,7 +46,7 @@ productRouter.post("/addproduct",
     fileUpload({}).single("image"),
     asyncHandler(productController.addProduct));
 
-productRouter.patch("/changeisdiscount",
+productRouter.patch("/changeisdiscount/:productId",
     asyncHandler(authentication()),
     authorization([accessRoles.admin]),
     asyncHandler(productController.changeIsDiscountState));

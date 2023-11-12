@@ -53,7 +53,7 @@ import cloudinary from "../../services/cloudinary.js";
 // });
 export const addProduct = async (req, res ,next) => {
     const check = await productModel.findOne({barCodeNumber:req.body.barCodeNumber});
-    if (!check)
+    if (check)
         return next(new AppError(`product with barCodeNumber ${req.body.barCodeNumber} already exist`, 404));
     const category = await categoryModel.findOne({name:req.body.category});
     if (!category)
