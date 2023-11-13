@@ -56,15 +56,15 @@ const productSchema = new mongoose.Schema({
         // minlength: [1, 'Too short Product name it should be at least 1 character'],
         // maxlength: [32, 'Too long Product name it should be at most 32 character'],
     },
-    // categories: [{
-    //     type: String,
-    //     // required: [true, 'Product required'],
-    // }],
-    category:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Category",
-        required: [true, 'Product required'],
-    },
+    categories: [{
+        type: String,
+        // required: [true, 'Product required'],
+    }],
+    // category:{
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Category",
+    //     required: [true, 'Product required'],
+    // },
     price: {
         type: Number,
         required: [true,"price of product is required"],

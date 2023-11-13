@@ -55,10 +55,21 @@ export const addProduct = async (req, res ,next) => {
     const check = await productModel.findOne({barCodeNumber:req.body.barCodeNumber});
     if (check)
         return next(new AppError(`product with barCodeNumber ${req.body.barCodeNumber} already exist`, 404));
-    const category = await categoryModel.findOne({name:req.body.category});
-    if (!category)
-        return next(new AppError(`category is not exist add it as category then add the product`, 400));
-    req.body.category = category._id;
+
+    const categories = req.body.categories;
+    for (let i = 0; i < categories.length; i++) {
+        const category = await categoryModel.findOne({name:categories[i]});
+        if (!category)
+            return next(new AppError(
+                `category ${categories[i]} is not exist add it as category then add the product`
+                , 400));
+    }
+
+
+    // const category = await categoryModel.findOne({name:req.body.category});
+    // if (!category)
+    //     return next(new AppError(`category is not exist add it as category then add the product`, 400));
+    // req.body.category = category._id;
     const {secure_url, public_id} = await cloudinary.uploader.upload(req.file.path,
         {
             folder: `${process.env.PROJECT_FOLDER}/products`
@@ -130,12 +141,18 @@ export const updateProduct = async (req, res ,next) => {
     const product = await productModel.findById(req.params.productId);
     if (!product)
         return next(new AppError("product not found", 400));
-    if(req.body.category){
-            const category = await categoryModel.findOne({name:req.body.category});
+
+    if(req.body.categories){
+        const categories = req.body.categories;
+        for (let i = 0; i < categories.length; i++) {
+            const category = await categoryModel.findOne({name:categories[i]});
             if (!category)
                 return next(new AppError(
-                    `category is not exist add it as category then add the product`,400));
+                    `category ${categories[i]} is not exist add it as category then add the product`
+                    , 400));
         }
+    }
+
     if (req.file) {
         const {secure_url, public_id} = await cloudinary.uploader.upload(req.file.path,
             {

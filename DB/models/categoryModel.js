@@ -30,6 +30,7 @@ const categorySchema = new mongoose.Schema({
         type: String,
         required: [true, 'Category required'],
         unique:true,
+        index:true,
     },
     image: {
         path: {
