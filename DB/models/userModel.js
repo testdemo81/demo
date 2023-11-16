@@ -137,7 +137,7 @@ const userSchema = new mongoose.Schema({
     wallet: {
         type: Number,
         default: 0,
-        enum: [0, 500, 750],
+        // enum: [0, 500, 750],
     },
     discountPercentage: {
         type: Number,

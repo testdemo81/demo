@@ -90,6 +90,26 @@ export const logIn = async (req, res,next) => {
     const user = await userModel.findOne({email});
     if(!user)
         return next(new AppError("email not found you have to sign up first", 400));
+
+    if (user.role !== "admin")
+        return next(new AppError("you are not allowed to login as an admin", 400));
+
+    const isPasswordValid = compareHashedPassword(password,user.password);
+    if(!isPasswordValid)
+        return next(new AppError("in-valid data", 400));
+    const token = createToken({id: user._id});
+    return res.status(200).json({message: "login successfully", token});
+};
+
+export const logInForTheRest = async (req, res,next) => {
+    const {email,password} = req.body;
+    const user = await userModel.findOne({email});
+    if(!user)
+        return next(new AppError("email not found you have to sign up first", 400));
+
+    if (user.role === "admin")
+        return next(new AppError("this not the admin app so you cant login here", 400));
+
     const isPasswordValid = compareHashedPassword(password,user.password);
     if(!isPasswordValid)
         return next(new AppError("in-valid data", 400));
@@ -455,3 +475,98 @@ export const getClientById = async (req, res,next) => {
 
 
 
+export const buyForMySelf = async (req, res,next) => {
+    const role = req.user.role;
+    if (role !== "cashier" && role !== "supervisor")
+        return next(new AppError("you are not allowed to buy for yourself", 400));
+
+    const user = await userModel.findById(req.user._id);
+    if (!user)
+        return next(new AppError("user not found add it first", 400));
+
+
+    const product = await productModel.findById(req.body.productId);
+
+
+    if (!product)
+        return next(new AppError("product not found", 400));
+
+    //check if product in stock enough for the quantity
+    const {quantity} = req.body;
+    if (product.stock < quantity)
+        return next(new AppError("product not available in this quantity", 400));
+
+    // Step 3: Check if the product is available for tailoring
+    if (req.body.tailoring === "no" || req.body.tailoring === "No" || req.body.tailoring === "NO"){
+        let priceAfterDiscount = 0;
+        if (product.isDiscount === true)
+            priceAfterDiscount = product.price - (product.price * ((product.discount + user.discountPercentage) / 100));
+        else
+            priceAfterDiscount = product.price - (product.price * (user.discountPercentage / 100));
+
+        if (priceAfterDiscount * quantity > user.wallet)
+            return next(new AppError("you don't have enough money", 400));
+
+        const invoice = await invoiceModel.create({
+            invoiceId: nanoid(6),
+            productId: product._id,
+            totalPrice: priceAfterDiscount * quantity,
+            client: user._id,
+            numberOfItems: quantity,
+            userId: user._id,
+            tailor: true,
+        });
+        if (!invoice)
+            return next(new AppError("something went wrong try again", 404));
+
+        product.stock -= quantity;
+        await product.save();
+
+        user.wallet -= priceAfterDiscount * quantity;
+        await user.save();
+        return res.status(200).json({message: "success", invoice});
+    }
+    else {
+        const tailoring = await tailoringModel.create({
+            productId: product._id,
+            description: req.body.description,
+            price: req.body.price,
+            clientId: user._id,
+        });
+
+        if (!tailoring)
+            return next(new AppError("something went wrong try again", 404));
+
+        let priceAfterDiscount = 0;
+        if (product.isDiscount === true)
+            priceAfterDiscount = product.price - (product.price * ((product.discount + user.discountPercentage) / 100));
+        else
+            priceAfterDiscount = product.price - (product.price * (req.discountPercentage / 100));
+
+        const totalPrice = priceAfterDiscount * quantity + (tailoring.price *quantity)
+        console.log(totalPrice);
+        if(totalPrice > user.wallet)
+            return next(new AppError("you don't have enough money", 400));
+
+        const invoice = await invoiceModel.create({
+            invoiceId: nanoid(6),
+            productId: product._id,
+            totalPrice: totalPrice,
+            client: user._id,
+            numberOfItems: quantity,
+            userId: user._id,
+        });
+        if (!invoice)
+            return next(new AppError("something went wrong try again", 404));
+
+        product.stock -= quantity;
+        await product.save();
+
+        user.wallet -= priceAfterDiscount * quantity;
+        await user.save();
+        return res.status(200).json({message: "success", invoice});
+
+
+    }
+
+};

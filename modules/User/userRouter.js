@@ -5,6 +5,7 @@ import authentication from "../../middleware/authentication.js";
 import asyncHandler from "../../utils/ErrorHandling/asyncHandler.js";
 import {fileUpload} from "../../services/multer.js";
 import accessRoles from "../../EndPoints.js";
+import {logInForTheRest} from "./userController.js";
 
 
 const userRouter = Router();
@@ -15,6 +16,10 @@ userRouter.post("/signup",
 
 userRouter.post("/login",
     asyncHandler(userController.logIn));
+
+userRouter.post("/loginforall",
+    asyncHandler(userController.logInForTheRest));
+
 
 userRouter.delete("/:userId",
     asyncHandler(authentication()),
@@ -83,5 +88,9 @@ userRouter.get("/getclientbyid/:clientId",
     asyncHandler(userController.getClientById));
 
 
+userRouter.post("/buyformyself",
+    asyncHandler(authentication()),
+    authorization([accessRoles.supervisor,accessRoles.cashier]),
+    asyncHandler(userController.buyForMySelf));
 
 export default userRouter;

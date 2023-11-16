@@ -5,8 +5,10 @@ process.on("uncaughtException", (err) => {
 });
 import app from "./app.js";
 import connectionDB from "./DB/connection.js";
+import schedule from "node-schedule";
 import { config } from "dotenv";
 config({ path: './env' });
+
 
 const port = process.env.PORT || 8000;
 const index = app.listen(port, async () => {
