@@ -170,7 +170,7 @@ categoryRouter.delete("/deletecategory/:categoryId",
  */
 categoryRouter.get("/getallcategories",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin]),
+    authorization([accessRoles.admin, accessRoles.supervisor ,accessRoles.seller, accessRoles.cashier, accessRoles.tailor]),
     asyncHandler(categoryController.getAllCategories));
 
 /**

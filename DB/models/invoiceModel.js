@@ -66,6 +66,11 @@ const invoiceSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    client: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Client',
+        required: true
+    }
 },{
     timestamps: true,
 });

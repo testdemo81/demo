@@ -5,7 +5,6 @@ import authentication from "../../middleware/authentication.js";
 import asyncHandler from "../../utils/ErrorHandling/asyncHandler.js";
 import {fileUpload} from "../../services/multer.js";
 import accessRoles from "../../EndPoints.js";
-import {logInForTheRest} from "./userController.js";
 
 
 const userRouter = Router();
@@ -92,5 +91,10 @@ userRouter.post("/buyformyself",
     asyncHandler(authentication()),
     authorization([accessRoles.supervisor,accessRoles.cashier]),
     asyncHandler(userController.buyForMySelf));
+
+userRouter.get("/invoice",
+    asyncHandler(authentication()),
+    authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
+    asyncHandler(userController.getAllInvoicesByClientsPhone));
 
 export default userRouter;

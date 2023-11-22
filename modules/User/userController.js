@@ -443,38 +443,6 @@ export const getClientById = async (req, res,next) => {
 };
 
 
-// export const buyProductCashierAndSuperviser = async (req, res,next) => {
-//     const user = await userModel.findById(req.params.userId);
-//     if (!user)
-//         return next(new AppError("user not found add it first", 400));
-//
-//     const {name, quantity, color, size}  = req.body;
-//     const product = await productModel.findOne({name,color,size});
-//
-//     if (!product)
-//         return next(new AppError("product not found", 400));
-//
-//     //check if product in stock enough for the quantity
-//     if (product.stock < quantity)
-//         return next(new AppError("product not available in this quantity", 400));
-//
-//     if (req.body.tailoring === "no" || req.body.tailoring === "No" || req.body.tailoring === "NO") {
-//         const paymentMethod = req.body.paymentMethod;
-//         const priceAfterDiscount = product.price - (product.price * product.discount / 100);
-//         if (user.role === "cashier" ||user.role === "supervisor") {
-//             let userPrice = priceAfterDiscount - (priceAfterDiscount * user.discountPercentage / 100);
-//             if(userPrice >user.wallet)
-//                 return next(new AppError(`you don't have enough money ${userPrice} > ${user.wallet}`, 400));
-//             user.wallet -= userPrice;
-//             user.save();
-//         }
-//
-//     }
-//
-// };
-
-
-
 export const buyForMySelf = async (req, res,next) => {
     const role = req.user.role;
     if (role !== "cashier" && role !== "supervisor")
@@ -569,4 +537,16 @@ export const buyForMySelf = async (req, res,next) => {
 
     }
 
+};
+
+export const getAllInvoicesByClientsPhone = async (req, res,next) => {
+    const client = await clientModel.findOne({phone:req.body.phone});
+    console.log(client);
+    if (!client)
+        return next(new AppError("client not found add it first", 400));
+
+    const invoices = await invoiceModel.find({client:client._id});
+    if (!invoices)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({message: "success",invoices});
 };
