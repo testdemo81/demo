@@ -62,7 +62,7 @@ const cardInfoSchema = new mongoose.Schema({
     creditCardType: {
         type: String,
         required: [true, 'Credit Card Type required'],
-        enum: ['Visa', 'Master Card'],
+        enum: ['visa', 'master card' , 'american express', 'knet'],
     },
 
 }, {

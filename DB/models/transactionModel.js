@@ -4,7 +4,7 @@ import mongoose from "mongoose";
  * @swagger
  * components:
  *   schemas:
- *     Retrived:
+ *     retrieved:
  *       type: object
  *       properties:
  *         _id:
@@ -61,5 +61,5 @@ const transactionSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const transactionModel = mongoose.models.Transaction || mongoose.model("Retrived",transactionSchema)
+const transactionModel = mongoose.models.Transaction || mongoose.model("retrieved",transactionSchema)
 export default transactionModel;

@@ -139,7 +139,6 @@ export const deleteUser = async (req, res,next) => {
         return res.json({message: "success"});
     else
         return next(new AppError("something went wrong try again", 400));
-
 };
 
 /**
@@ -172,11 +171,6 @@ export const updateUser = async (req, res,next) => {
     if (!updatedUser)
         return next(new AppError("something went wrong try again", 400));
     return res.status(200).json({message: "success"});
-
-
-
-
-
 };
 
 export const getUserInfoWhileLogin = async (req, res,next) => {
@@ -372,14 +366,15 @@ export const returnProduct = async (req, res,next) => {
         return next(new AppError("you can't return this product because the return period is over so ask your admin to return it", 400));
 
 
-    const flagTransaction = await transaction.deleteOne();
-
+    // const flagTransaction = await transaction.deleteOne();
     // if (flagTransaction.deletedCount === 0)
     //     return next(new AppError("this transaction is already returned", 400));
 
     const retrievedProduct = await retrievedModel.create({
         invoiceId: invoice._id,
-        productId: invoice.productId
+        productId: invoice.productId,
+        userId: req.user._id,
+        clientId: invoice.client,
     });
     if (!retrievedProduct)
         return next(new AppError("something went wrong try again", 404));
@@ -391,7 +386,7 @@ export const returnProduct = async (req, res,next) => {
     product.stock += invoice.numberOfItems;
     await product.save();
 
-    const flagInvoice = await invoice.deleteOne();
+    // const flagInvoice = await invoice.deleteOne();
     // if (flagInvoice.deletedCount === 0)
     //     return next(new AppError("this invoice is already returned", 400));
 
@@ -512,7 +507,6 @@ export const buyForMySelf = async (req, res,next) => {
             priceAfterDiscount = product.price - (product.price * (req.discountPercentage / 100));
 
         const totalPrice = priceAfterDiscount * quantity + (tailoring.price *quantity)
-        console.log(totalPrice);
         if(totalPrice > user.wallet)
             return next(new AppError("you don't have enough money", 400));
 
@@ -541,7 +535,6 @@ export const buyForMySelf = async (req, res,next) => {
 
 export const getAllInvoicesByClientsPhone = async (req, res,next) => {
     const client = await clientModel.findOne({phone:req.body.phone});
-    console.log(client);
     if (!client)
         return next(new AppError("client not found add it first", 400));
 

@@ -42,6 +42,16 @@ const retrievedSchema = new mongoose.Schema({
         ref: 'Invoice',
         required: [true, 'Invoice required'],
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'User required'],
+    },
+    clientId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Client',
+        required: [true, 'Client required'],
+    },
 },{
     timestamps: true
 });

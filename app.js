@@ -17,8 +17,9 @@ app.use(express.json());
 app.use(`/user`,indexRouter.userRouter);
 app.use(`/category`,indexRouter.categoryRouter);
 app.use(`/product`,indexRouter.productRouter);
-app.use(`/task`,indexRouter.taskRouter);
+// app.use(`/task`,indexRouter.taskRouter);
 app.use(`/report`,indexRouter.reportRouter);
+app.use(`/retrieved`,indexRouter.retrievedRouter);
 
 
 
