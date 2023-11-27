@@ -167,6 +167,18 @@ export const updateUser = async (req, res,next) => {
         await user.save();
         delete req.body.image;
     }
+    if(req.body.password)
+        req.body.password = hashPassword(req.body.password);
+    if (req.body.role){
+        if (req.body.role === "cashier"){
+            req.body.wallet = 500;
+            req.body.discountPercentage = 30;
+        }
+        if (req.body.role === "supervisor"){
+            req.body.wallet = 750;
+            req.body.discountPercentage = 35;
+        }
+    }
     const updatedUser = await user.updateOne(req.body);
     if (!updatedUser)
         return next(new AppError("something went wrong try again", 400));
@@ -323,7 +335,6 @@ export const buyProduct = async (req, res,next) => {
     }
 };
 
-
 export const getAllUsers = async (req, res,next) => {
     const users = await userModel.find();
     if (!users)
@@ -447,10 +458,7 @@ export const buyForMySelf = async (req, res,next) => {
     if (!user)
         return next(new AppError("user not found add it first", 400));
 
-
     const product = await productModel.findById(req.body.productId);
-
-
     if (!product)
         return next(new AppError("product not found", 400));
 
@@ -527,10 +535,7 @@ export const buyForMySelf = async (req, res,next) => {
         user.wallet -= priceAfterDiscount * quantity;
         await user.save();
         return res.status(200).json({message: "success", invoice});
-
-
     }
-
 };
 
 export const getAllInvoicesByClientsPhone = async (req, res,next) => {

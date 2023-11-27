@@ -5,23 +5,22 @@ import asyncHandler from "../../utils/ErrorHandling/asyncHandler.js";
 import authentication from "../../middleware/authentication.js";
 import authorization from "../../middleware/authorization.js";
 import accessRoles from "../../EndPoints.js";
-import {returnSpecificRetrievedByInvoice} from "./retrievedController.js";
 
 
 retrievedRouter.get("/all",
     asyncHandler(authentication()),
-    authorization(accessRoles.admin),
+    authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
     asyncHandler(retrievedController.returnAllRetrieved));
 
 retrievedRouter.get("/returnspecificbyinvoice/:invoiceId",
     asyncHandler(authentication()),
-    authorization(accessRoles.admin),
+    authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
     asyncHandler(retrievedController.returnSpecificRetrievedByInvoice));
 
 
 retrievedRouter.get("/returnallretrivedsforclient/:clientPhone",
     asyncHandler(authentication()),
-    authorization(accessRoles.admin),
+    authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
     asyncHandler(retrievedController.returnAllRetrievedForClient));
 
 
