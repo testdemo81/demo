@@ -37,15 +37,61 @@ const reportSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Report Description required'],
     },
-    // taskID: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'Task',
-    //     required: [true, 'Task required'],
-    // },
+    invoice :{
+        buyingDate: {
+            type: Date,
+            required: [true, 'buyingDate required'],
+        },
+        paymentMethod: {
+            type: String,
+            required: [true, 'paymentMethod required'],
+        },
+        invoiceId: {
+            type: String,
+            required: [true, 'invoiceId required'],
+        },
+        productName: {
+            type: String,
+            required: [true, 'productName required'],
+        },
+        clientName: {
+            type: String,
+            required: [true, 'clientName required'],
+        },
+        clientPhone: {
+            type: String,
+            required: [true, 'clientPhoneNumber required'],
+        },
+        tailored: {
+            type: String,
+            required: [true, 'tailored required'],
+        },
+        tailoringPrice: {
+            type: Number,
+            default: 0,
+            // required: [true, 'tailoringPrice required'],
+        },
+        productPrice: {
+            type: Number,
+            required: [true, 'productPrice required'],
+        },
+        numberOfItems: {
+            type: Number,
+            required: [true, 'numberOfItems required'],
+        },
+        totalPrice: {
+            type: Number,
+            required: [true, 'totalPrice required'],
+        },
+    },
     userID: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: [true, 'User required'],
+    },
+    userName: {
+        type: String,
+        required: [true, 'User Name required'],
     },
 }, {
         timestamps: true

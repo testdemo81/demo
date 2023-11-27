@@ -65,7 +65,7 @@ import accessRoles from "../../EndPoints.js";
  */
 reportRouter.post("/createreport",
     asyncHandler(authentication()),
-    authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor, accessRoles.supervisor]),
+    authorization([accessRoles.cashier,accessRoles.supervisor]),
     asyncHandler(reportController.createReport));
 
 /**

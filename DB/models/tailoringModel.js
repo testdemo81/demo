@@ -42,7 +42,7 @@ const tailoringSchema = new mongoose.Schema({
         ref: 'Product',
         required: true
     },
-    description: {
+    tailoringDescription: {
         type: String,
         required: true
     },

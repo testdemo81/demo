@@ -6,6 +6,7 @@ import tailoringModel from "../../DB/models/tailoringModel.js";
 import transactionModel from "../../DB/models/transactionModel.js";
 import retrievedModel from "../../DB/models/retrievedModel.js";
 import cardInfoModel from "../../DB/models/cardInfoModel.js";
+import reportModel from "../../DB/models/reportModel.js";
 import AppError from "../../utils/ErrorHandling/AppError.js";
 import cloudinary from "../../services/cloudinary.js";
 import {hashPassword} from "../../utils/hashing/hashPassword.js";
@@ -281,13 +282,34 @@ export const buyProduct = async (req, res,next) => {
         product.stock -= quantity;
         await product.save();
 
+        const report = await reportModel.create({
+            name: req.body.name,
+            description: req.body.description,
+            userID: req.user._id,
+            userName: req.user.name,
+            invoice: {
+                buyingDate: invoice.createdAt,
+                paymentMethod: req.body.paymentMethod,
+                invoiceId: invoice.invoiceId,
+                productName: product.name,
+                clientName: client.name,
+                clientPhone: client.phone,
+                tailored: req.body.tailoring,
+                productPrice: product.price,
+                numberOfItems: req.body.quantity,
+                totalPrice: invoice.totalPrice,
+            }
+        });
 
-        return res.status(200).json({message: "success", invoice, transaction, /*report*/});
+        if (!report)
+            return next(new AppError("something went wrong try again", 404));
+
+        return res.status(200).json({message: "success", report});
     }
     else {
         const tailoring = await tailoringModel.create({
             productId: product._id,
-            description: req.body.description,
+            tailoringDescription: req.body.description,
             price: req.body.price,
             clientId: client._id,
         });
@@ -331,7 +353,27 @@ export const buyProduct = async (req, res,next) => {
         product.stock -= quantity;
         await product.save();
 
-        return res.status(200).json({message: "success", invoice, transaction, /*report*/});
+        const report = await reportModel.create({
+            name: req.body.name,
+            description: req.body.description,
+            userID: req.user._id,
+            userName: req.user.name,
+            invoice: {
+                buyingDate: invoice.createdAt,
+                paymentMethod: req.body.paymentMethod,
+                invoiceId: invoice.invoiceId,
+                productName: product.name,
+                clientName: client.name,
+                clientPhone: client.phone,
+                tailored: req.body.tailoring,
+                tailoringPrice: tailoring.price,
+                productPrice: product.price,
+                numberOfItems: req.body.quantity,
+                totalPrice: invoice.totalPrice,
+            }
+        });
+
+        return res.status(200).json({message: "success", report});
     }
 };
 
