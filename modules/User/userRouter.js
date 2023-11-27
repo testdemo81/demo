@@ -5,7 +5,7 @@ import authentication from "../../middleware/authentication.js";
 import asyncHandler from "../../utils/ErrorHandling/asyncHandler.js";
 import {fileUpload} from "../../services/multer.js";
 import accessRoles from "../../EndPoints.js";
-import {changeTailoringStatus} from "./userController.js";
+import {getAllTailoringsForSpecificTailor} from "./userController.js";
 
 
 const userRouter = Router();
@@ -112,5 +112,10 @@ userRouter.get("/alltailors",
     asyncHandler(authentication()),
     authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
     asyncHandler(userController.getAllTailors));
+
+userRouter.get("/alltailoringsforspecifictailor/:tailorId",
+    asyncHandler(authentication()),
+    authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
+    asyncHandler(userController.getAllTailoringsForSpecificTailor));
 
 export default userRouter;

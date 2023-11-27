@@ -494,22 +494,6 @@ export const getAllTailors = async (req, res,next) => {
     return res.status(200).json({message: "success", tailors});
 };
 
-
-
-export const getClientByPhone = async (req, res,next) => {
-    const client = await clientModel.findOne({phone:req.params.phone});
-    if (!client)
-        return next(new AppError("client not found add it first", 400));
-    return res.status(200).json({message: "success",client});
-};
-
-export const getClientById = async (req, res,next) => {
-    const client = await clientModel.findById(req.params.clientId);
-    if (!client)
-        return next(new AppError("client not found add it first", 400));
-    return res.status(200).json({message: "success",client});
-};
-
 export const changeTailoringStatus = async (req, res,next) => {
     const tailoring = await tailoringModel.findById(req.params.tailoringId);
     if (!tailoring)
@@ -529,6 +513,33 @@ export const getAllTailorings = async (req, res,next) => {
         return next(new AppError("something went wrong try again", 400));
     return res.status(200).json({message: "success", tailoring});
 }
+
+export const getAllTailoringsForSpecificTailor = async (req, res,next) => {
+    const tailoring = await tailoringModel.find({tailorId:req.params.tailorId})
+        .populate({path: "productId", select: "name"})
+        .populate({path: "clientId", select: "name"})
+        .populate({path: "userId", select: "name"})
+        .populate({path: "tailorId", select: "name"});
+
+    if (!tailoring)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({message: "success", tailoring});
+}
+
+export const getClientByPhone = async (req, res,next) => {
+    const client = await clientModel.findOne({phone:req.params.phone});
+    if (!client)
+        return next(new AppError("client not found add it first", 400));
+    return res.status(200).json({message: "success",client});
+};
+
+export const getClientById = async (req, res,next) => {
+    const client = await clientModel.findById(req.params.clientId);
+    if (!client)
+        return next(new AppError("client not found add it first", 400));
+    return res.status(200).json({message: "success",client});
+};
+
 
 export const buyForMySelf = async (req, res,next) => {
     const role = req.user.role;
