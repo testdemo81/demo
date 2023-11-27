@@ -4,6 +4,7 @@ import errorHandlerMW from "./middleware/errorHandlerMW.js";
 import swaggerDocs from "./swagger.js";
 import * as indexRouter from "./modules/indexRouter.js"
 import { config } from "dotenv";
+import retrievedRouter from "./modules/retrieved/retrievedRouter.js";
 config({ path: './.env' });
 
 const app = express();
@@ -17,7 +18,6 @@ app.use(express.json());
 app.use(`/user`,indexRouter.userRouter);
 app.use(`/category`,indexRouter.categoryRouter);
 app.use(`/product`,indexRouter.productRouter);
-// app.use(`/task`,indexRouter.taskRouter);
 app.use(`/report`,indexRouter.reportRouter);
 app.use(`/retrieved`,indexRouter.retrievedRouter);
 
