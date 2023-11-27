@@ -217,6 +217,7 @@ export const buyProduct = async (req, res,next) => {
     if (!client)
         return next(new AppError("client not found add it first", 404));
 
+
     let card = await cardInfoModel.findOne({clientID:client._id});
 
     if(req.body.paymentMethod === "card") {
@@ -307,11 +308,19 @@ export const buyProduct = async (req, res,next) => {
         return res.status(200).json({message: "success", invoice});
     }
     else {
+
+        const tailor = await userModel.findOne({role:"tailor",_id:req.body.tailorId});
+        if (!tailor)
+            return next(new AppError("tailor not found", 404));
+
         const tailoring = await tailoringModel.create({
             productId: product._id,
             tailoringDescription: req.body.description,
             price: req.body.price,
             clientId: client._id,
+            tailorId: tailor._id,
+            userId: req.user._id,
+            status: "pending",
         });
 
 
@@ -343,7 +352,7 @@ export const buyProduct = async (req, res,next) => {
             paymentMethod: paymentMethod,
             invoiceId: invoice._id,
             clientId: client._id,
-            userId: req.user._id
+            userId: req.user._id,
         });
         if (!transaction)
             return next(new AppError("something went wrong try again", 404));
@@ -478,6 +487,15 @@ export const getAllClients = async (req, res,next) => {
     });
 };
 
+export const getAllTailors = async (req, res,next) => {
+    const tailors = await userModel.find({role:"tailor"});
+    if (!tailors)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({message: "success", tailors});
+};
+
+
+
 export const getClientByPhone = async (req, res,next) => {
     const client = await clientModel.findOne({phone:req.params.phone});
     if (!client)
@@ -491,6 +509,26 @@ export const getClientById = async (req, res,next) => {
         return next(new AppError("client not found add it first", 400));
     return res.status(200).json({message: "success",client});
 };
+
+export const changeTailoringStatus = async (req, res,next) => {
+    const tailoring = await tailoringModel.findById(req.params.tailoringId);
+    if (!tailoring)
+        return next(new AppError("tailoring not found", 400));
+    tailoring.status = "accepted";
+    await tailoring.save();
+    return res.status(200).json({message: "success",tailoring});
+}
+export const getAllTailorings = async (req, res,next) => {
+    const tailoring = await tailoringModel.find()
+        .populate({path: "productId", select: "name"})
+        .populate({path: "clientId", select: "name"})
+        .populate({path: "userId", select: "name"})
+        .populate({path: "tailorId", select: "name"});
+
+    if (!tailoring)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({message: "success", tailoring});
+}
 
 export const buyForMySelf = async (req, res,next) => {
     const role = req.user.role;
@@ -563,11 +601,18 @@ export const buyForMySelf = async (req, res,next) => {
         return res.status(200).json({message: "success", invoice});
     }
     else {
+        const tailor = await userModel.findOne({role:"tailor",_id:req.body.tailorId});
+        if (!tailor)
+            return next(new AppError("tailor not found", 404));
+
         const tailoring = await tailoringModel.create({
             productId: product._id,
-            tailoringDescription: req.body.tailoringDescription,
+            tailoringDescription: req.body.description,
             price: req.body.price,
             clientId: user._id,
+            tailorId: tailor._id,
+            userId: req.user._id,
+            status: "pending",
         });
 
         if (!tailoring)

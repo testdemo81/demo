@@ -5,6 +5,7 @@ import authentication from "../../middleware/authentication.js";
 import asyncHandler from "../../utils/ErrorHandling/asyncHandler.js";
 import {fileUpload} from "../../services/multer.js";
 import accessRoles from "../../EndPoints.js";
+import {changeTailoringStatus} from "./userController.js";
 
 
 const userRouter = Router();
@@ -96,5 +97,20 @@ userRouter.post("/invoice",
     asyncHandler(authentication()),
     authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
     asyncHandler(userController.getAllInvoicesByClientsPhone));
+
+userRouter.get("/alltailorings",
+    asyncHandler(authentication()),
+    authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
+    asyncHandler(userController.getAllTailorings));
+
+userRouter.patch("/tailoring/:tailoringId",
+    asyncHandler(authentication()),
+    authorization([accessRoles.tailor]),
+    asyncHandler(userController.changeTailoringStatus));
+
+userRouter.get("/alltailors",
+    asyncHandler(authentication()),
+    authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
+    asyncHandler(userController.getAllTailors));
 
 export default userRouter;

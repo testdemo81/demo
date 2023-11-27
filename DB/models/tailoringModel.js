@@ -54,7 +54,23 @@ const tailoringSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Client',
         required: [true, 'Client required'],
-    }
+    },
+    tailorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'Tailor required'],
+    },
+    //refer for cashier
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: [true, 'User required'],
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'accepted'],
+        default: 'pending'
+    },
 },{
     timestamps: true
 });
