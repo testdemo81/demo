@@ -304,7 +304,7 @@ export const buyProduct = async (req, res,next) => {
         if (!report)
             return next(new AppError("something went wrong try again", 404));
 
-        return res.status(200).json({message: "success", report});
+        return res.status(200).json({message: "success", invoice});
     }
     else {
         const tailoring = await tailoringModel.create({
@@ -373,7 +373,11 @@ export const buyProduct = async (req, res,next) => {
             }
         });
 
-        return res.status(200).json({message: "success", report});
+        if (!report)
+            return next(new AppError("something went wrong try again", 404));
+
+
+        return res.status(200).json({message: "success", invoice});
     }
 };
 
@@ -384,14 +388,12 @@ export const getAllUsers = async (req, res,next) => {
     return res.status(200).json({message: "success", users});
 };
 
-
 export const getUserById = async (req, res,next) => {
     const user = await userModel.findById(req.params.userId);
     if (!user)
         return next(new AppError("user not found", 400));
     return res.status(200).json({message: "success", user});
 };
-
 
 export const returnProduct = async (req, res,next) => {
     const invoice = await invoiceModel.findOne({invoiceId:req.body.invoiceId})
@@ -490,7 +492,6 @@ export const getClientById = async (req, res,next) => {
     return res.status(200).json({message: "success",client});
 };
 
-
 export const buyForMySelf = async (req, res,next) => {
     const role = req.user.role;
     if (role !== "cashier" && role !== "supervisor")
@@ -527,7 +528,7 @@ export const buyForMySelf = async (req, res,next) => {
             client: user._id,
             numberOfItems: quantity,
             userId: user._id,
-            tailor: true,
+            tailor: false,
         });
         if (!invoice)
             return next(new AppError("something went wrong try again", 404));
@@ -537,12 +538,34 @@ export const buyForMySelf = async (req, res,next) => {
 
         user.wallet -= priceAfterDiscount * quantity;
         await user.save();
+
+        const report = await reportModel.create({
+            name: req.body.name,
+            description: req.body.description,
+            userID: req.user._id,
+            userName: req.user.name,
+            invoice: {
+                buyingDate: invoice.createdAt,
+                paymentMethod: "wallet",
+                invoiceId: invoice.invoiceId,
+                productName: product.name,
+                clientName: user.name,
+                clientPhone: user.phone,
+                tailored: req.body.tailoring,
+                productPrice: product.price,
+                numberOfItems: req.body.quantity,
+                totalPrice: invoice.totalPrice,
+            }
+        });
+        if (!report)
+            return next(new AppError("something went wrong try again", 404));
+
         return res.status(200).json({message: "success", invoice});
     }
     else {
         const tailoring = await tailoringModel.create({
             productId: product._id,
-            description: req.body.description,
+            tailoringDescription: req.body.tailoringDescription,
             price: req.body.price,
             clientId: user._id,
         });
@@ -550,12 +573,16 @@ export const buyForMySelf = async (req, res,next) => {
         if (!tailoring)
             return next(new AppError("something went wrong try again", 404));
 
-        let priceAfterDiscount = 0;
-        if (product.isDiscount === true)
+        let priceAfterDiscount;
+        if (product.isDiscount === true) {
             priceAfterDiscount = product.price - (product.price * ((product.discount + user.discountPercentage) / 100));
-        else
-            priceAfterDiscount = product.price - (product.price * (req.discountPercentage / 100));
+            // console.log(priceAfterDiscount,product.price,product.discount,user.discountPercentage,user.wallet);
 
+        }
+        else {
+            priceAfterDiscount = product.price - (product.price * (user.discountPercentage / 100));
+            // console.log(priceAfterDiscount,product.price,product.discount,user.discountPercentage,user.wallet);
+        }
         const totalPrice = priceAfterDiscount * quantity + (tailoring.price *quantity)
         if(totalPrice > user.wallet)
             return next(new AppError("you don't have enough money", 400));
@@ -567,6 +594,7 @@ export const buyForMySelf = async (req, res,next) => {
             client: user._id,
             numberOfItems: quantity,
             userId: user._id,
+            tailored: true,
         });
         if (!invoice)
             return next(new AppError("something went wrong try again", 404));
@@ -576,6 +604,29 @@ export const buyForMySelf = async (req, res,next) => {
 
         user.wallet -= priceAfterDiscount * quantity;
         await user.save();
+
+        const report = await reportModel.create({
+            name: req.body.name,
+            description: req.body.description,
+            userID: req.user._id,
+            userName: req.user.name,
+            invoice: {
+                buyingDate: invoice.createdAt,
+                paymentMethod: "wallet",
+                invoiceId: invoice.invoiceId,
+                productName: product.name,
+                clientName: user.name,
+                clientPhone: user.phone,
+                tailored: req.body.tailoring,
+                tailoringPrice: tailoring.price,
+                productPrice: product.price,
+                numberOfItems: req.body.quantity,
+                totalPrice: invoice.totalPrice,
+            }
+        });
+
+        if (!report)
+            return next(new AppError("something went wrong try again", 404));
         return res.status(200).json({message: "success", invoice});
     }
 };

@@ -60,7 +60,7 @@ const invoiceSchema = new mongoose.Schema({
     //purshies at == created at
     totalPrice: {
         type: Number,
-        required: [true, 'totalPrice required'],
+        // required: [true, 'totalPrice required'],
     },
     tailored: {
         type: Boolean,

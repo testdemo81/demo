@@ -44,7 +44,7 @@ const tailoringSchema = new mongoose.Schema({
     },
     tailoringDescription: {
         type: String,
-        required: true
+        // required: true
     },
     price: {
         type: Number,
