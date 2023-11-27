@@ -86,7 +86,7 @@ reportRouter.post("/createreport",
  *           type: string
  *     responses:
  *       200:
- *         description: Report retrieved successfully.
+ *         description: Report Retrieved successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -125,7 +125,7 @@ reportRouter.get("/getreport/:reportId",
  *       - BearerAuth: []  # If you have authentication set up with Bearer tokens
  *     responses:
  *       200:
- *         description: List of reports retrieved successfully.
+ *         description: List of reports Retrieved successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -173,7 +173,7 @@ reportRouter.get("/getallreports",
  *           type: string
  *     responses:
  *       200:
- *         description: List of reports retrieved successfully for the specified user.
+ *         description: List of reports Retrieved successfully for the specified user.
  *         content:
  *           application/json:
  *             schema:
@@ -227,7 +227,7 @@ reportRouter.get("/getallreportsbyuserid/:userId",
  *           type: string
  *     responses:
  *       200:
- *         description: List of reports retrieved successfully based on the date criteria.
+ *         description: List of reports Retrieved successfully based on the date criteria.
  *         content:
  *           application/json:
  *             schema:

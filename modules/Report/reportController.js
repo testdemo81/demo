@@ -31,7 +31,7 @@ export const createReport = async (req, res, next) => {
  * @param {Request} req - The Express request object containing the report ID in the params.
  * @param {Response} res - The Express response object.
  * @param {NextFunction} next - The next middleware function.
- * @returns {Promise<void>} - A promise that resolves with the retrieved report or an error.
+ * @returns {Promise<void>} - A promise that resolves with the Retrieved report or an error.
  *
  * @throws {AppError} If no report is found with the provided report ID.
  */

@@ -4,7 +4,7 @@ import mongoose from "mongoose";
  * @swagger
  * components:
  *   schemas:
- *     retrieved:
+ *     Retrieved:
  *       type: object
  *       properties:
  *         _id:

@@ -47,11 +47,11 @@ export const returnAllRetrievedForClient = async (req, res, next) => {
 
 
 // export const returnSpecificRetrievedForClient = async (req, res, next) => {
-//     const retrieved = await retrievedModel.findOne({invoiceId:req.params.invoiceId})
+//     const Retrieved = await retrievedModel.findOne({invoiceId:req.params.invoiceId})
 //         .populate({path: "productId", select: "name"})
 //         .populate({path: "invoiceId", select: "invoiceId,createdAt"})
 //         .populate({path: "userId", select: "name"});
-//     if (!retrieved)
+//     if (!Retrieved)
 //         return next(new AppError("something went wrong try again", 400));
-//     return res.json({message: "success", retrieved});
+//     return res.json({message: "success", Retrieved});
 // };

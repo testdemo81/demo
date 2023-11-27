@@ -149,7 +149,7 @@
 //  *       - BearerAuth: []  # If you have authentication set up with Bearer tokens
 //  *     responses:
 //  *       200:
-//  *         description: List of tasks retrieved successfully.
+//  *         description: List of tasks Retrieved successfully.
 //  *         content:
 //  *           application/json:
 //  *             schema:
@@ -196,7 +196,7 @@
 //  *           type: string
 //  *     responses:
 //  *       200:
-//  *         description: List of tasks retrieved successfully for the specified user.
+//  *         description: List of tasks Retrieved successfully for the specified user.
 //  *         content:
 //  *           application/json:
 //  *             schema:
@@ -286,7 +286,7 @@
 //  *           type: string
 //  *     responses:
 //  *       200:
-//  *         description: Task retrieved successfully.
+//  *         description: Task Retrieved successfully.
 //  *         content:
 //  *           application/json:
 //  *             schema:

@@ -9,7 +9,7 @@ import mongoose from "mongoose";
  *       properties:
  *         _id:
  *           type: string
- *           description: The unique identifier for the retrieved record.
+ *           description: The unique identifier for the Retrieved record.
  *         productId:
  *           type: string
  *           description: The ID of the associated product.
@@ -19,11 +19,11 @@ import mongoose from "mongoose";
  *         createdAt:
  *           type: string
  *           format: date-time
- *           description: The timestamp when the retrieved record was created.
+ *           description: The timestamp when the Retrieved record was created.
  *         updatedAt:
  *           type: string
  *           format: date-time
- *           description: The timestamp when the retrieved record was last updated.
+ *           description: The timestamp when the Retrieved record was last updated.
  *       required:
  *         - productId
  *         - invoiceId
