@@ -407,9 +407,9 @@ export const returnProduct = async (req, res,next) => {
     if (!invoice)
         return next(new AppError("invoice not found", 400));
 
-    const transaction = await transactionModel.findOne({invoiceId:invoice._id});
-    if (!transaction)
-        return next(new AppError("transaction not found", 400));
+    // const transaction = await transactionModel.findOne({invoiceId:invoice._id});
+    // if (!transaction)
+    //     return next(new AppError("transaction not found", 400));
 
 
     if (invoice.tailored)
