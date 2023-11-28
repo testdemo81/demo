@@ -5,7 +5,6 @@ import authentication from "../../middleware/authentication.js";
 import asyncHandler from "../../utils/ErrorHandling/asyncHandler.js";
 import {fileUpload} from "../../services/multer.js";
 import accessRoles from "../../EndPoints.js";
-import {getAllTailoringsForSpecificTailor} from "./userController.js";
 
 
 const userRouter = Router();

@@ -61,5 +61,5 @@ const transactionSchema = new mongoose.Schema({
     timestamps: true
 });
 
-const transactionModel = mongoose.models.Transaction || mongoose.model("retrieved",transactionSchema)
+const transactionModel = mongoose.models.Transaction || mongoose.model("Transaction",transactionSchema)
 export default transactionModel;

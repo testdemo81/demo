@@ -305,10 +305,9 @@ export const buyProduct = async (req, res,next) => {
         if (!report)
             return next(new AppError("something went wrong try again", 404));
 
-        return res.status(200).json({message: "success", invoice});
+        return res.status(200).json({message: "success", invoice,transaction,report});
     }
     else {
-
         const tailor = await userModel.findOne({role:"tailor",_id:req.body.tailorId});
         if (!tailor)
             return next(new AppError("tailor not found", 404));
@@ -322,7 +321,6 @@ export const buyProduct = async (req, res,next) => {
             userId: req.user._id,
             status: "pending",
         });
-
 
 
         if (!tailoring)
@@ -386,7 +384,7 @@ export const buyProduct = async (req, res,next) => {
             return next(new AppError("something went wrong try again", 404));
 
 
-        return res.status(200).json({message: "success", invoice});
+        return res.status(200).json({message: "success", invoice,transaction,report});
     }
 };
 
