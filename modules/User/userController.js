@@ -448,6 +448,7 @@ export const returnProduct = async (req, res,next) => {
     product.stock += invoice.numberOfItems;
     await product.save();
 
+    await invoiceModel.findByIdAndDelete(invoice._id);
     // const flagInvoice = await invoice.deleteOne();
     // if (flagInvoice.deletedCount === 0)
     //     return next(new AppError("this invoice is already returned", 400));
