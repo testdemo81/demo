@@ -7,12 +7,18 @@ import transactionModel from "../../DB/models/transactionModel.js";
 import retrievedModel from "../../DB/models/retrievedModel.js";
 import cardInfoModel from "../../DB/models/cardInfoModel.js";
 import reportModel from "../../DB/models/reportModel.js";
+import notificationModel from "../../DB/models/notificationModel.js";
 import AppError from "../../utils/ErrorHandling/AppError.js";
 import cloudinary from "../../services/cloudinary.js";
 import {hashPassword} from "../../utils/hashing/hashPassword.js";
 import {compareHashedPassword} from "../../utils/hashing/compareHashedPassword.js";
-import {nanoid} from "nanoid";
+import { customAlphabet } from 'nanoid'
 import {createToken} from "../../utils/token/createToken.js";
+
+
+const invoiceNanoid = customAlphabet('1234567890', 6)
+const userNanoid = customAlphabet('1234567890', 5)
+
 
 
 
@@ -34,7 +40,7 @@ export const signUp = async (req, res,next) => {
     if(await userModel.findOne({email}))
         return next(new AppError("email already exist so login", 400));
     const hashedPassword = hashPassword(req.body.password);
-    const employeeId = nanoid(5);
+    const employeeId = userNanoid();
     const data = new Date(req.body.DOB);
     const {secure_url,public_id} = await cloudinary.uploader.upload(req.file.path,
         {
@@ -193,14 +199,31 @@ export const getUserInfoWhileLogin = async (req, res,next) => {
     return res.status(200).json({message: "success",user});
 };
 
+export const getAllUsers = async (req, res,next) => {
+    const users = await userModel.find();
+    if (!users)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({message: "success", users});
+};
 
+export const getUserById = async (req, res,next) => {
+    const user = await userModel.findById(req.params.userId);
+    if (!user)
+        return next(new AppError("user not found", 400));
+    return res.status(200).json({message: "success", user});
+};
+
+
+
+
+
+//client
 export const createClient = async (req, res,next) => {
     const client = await clientModel.create(req.body);
     if (!client)
         return next(new AppError("something went wrong try again", 400));
     return res.status(200).json({message: "success",client});
 };
-
 export const addClientCardInfo = async (req, res,next) => {
     const client = await clientModel.findOne({phone:req.body.phone});
     if (!client)
@@ -211,6 +234,55 @@ export const addClientCardInfo = async (req, res,next) => {
         return next(new AppError("something went wrong try again", 400));
     return res.status(200).json({message: "success",card});
 };
+export const getAllClients = async (req, res,next) => {
+    const page = parseInt(req.query.page) || 1; // Extract the page number from the query parameter
+    const pageSize = parseInt(req.query.pageSize) || 10; // Extract the page size from the query parameter
+
+    const totalDocuments = await productModel.countDocuments();
+    const totalPages = Math.ceil(totalDocuments / pageSize);
+
+    const skipDocuments = (page - 1) * pageSize;
+
+    const clients = await clientModel.find()
+        .skip(skipDocuments)
+        .limit(pageSize);
+    if (!clients)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({
+        message: "success",
+        clients,
+        currentPage: page,
+        totalPages,
+        pageSize
+    });
+};
+export const getClientByPhone = async (req, res,next) => {
+    const client = await clientModel.findOne({phone:req.params.phone});
+    if (!client)
+        return next(new AppError("client not found add it first", 400));
+    return res.status(200).json({message: "success",client});
+};
+export const getClientById = async (req, res,next) => {
+    const client = await clientModel.findById(req.params.clientId);
+    if (!client)
+        return next(new AppError("client not found add it first", 400));
+    return res.status(200).json({message: "success",client});
+};
+export const getAllInvoicesByClientsPhone = async (req, res,next) => {
+    const client = await clientModel.findOne({phone:req.body.phone});
+    if (!client)
+        return next(new AppError("client not found add it first", 400));
+
+    const invoices = await invoiceModel.find({client:client._id});
+    if (!invoices)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({message: "success",client,invoices});
+};
+
+
+
+
+
 
 export const buyProduct = async (req, res,next) => {
     const client = await clientModel.findOne({phone:req.body.phone});
@@ -260,7 +332,7 @@ export const buyProduct = async (req, res,next) => {
 
 
         const invoice = await invoiceModel.create({
-            invoiceId: nanoid(6),
+            invoiceId: invoiceNanoid(),
             productId: product._id,
             totalPrice: priceAfterDiscount * quantity,
             client: client._id,
@@ -281,6 +353,14 @@ export const buyProduct = async (req, res,next) => {
 
         // Step 5: Update the product quantity
         product.stock -= quantity;
+        if (product.stock === 1) {
+            const notification = await notificationModel.create({
+                msg: `there is one piece in the stock of ${product.name}`,
+                type: "stock",
+            });
+            if (!notification)
+                return next(new AppError("something went wrong try again", 404));
+        }
         await product.save();
 
         const report = await reportModel.create({
@@ -305,7 +385,7 @@ export const buyProduct = async (req, res,next) => {
         if (!report)
             return next(new AppError("something went wrong try again", 404));
 
-        return res.status(200).json({message: "success", invoice,transaction,report});
+        return res.status(200).json({message: "success", invoice,transaction,report,client});
     }
     else {
         const tailor = await userModel.findOne({role:"tailor",_id:req.body.tailorId});
@@ -334,7 +414,7 @@ export const buyProduct = async (req, res,next) => {
             priceAfterDiscount = product.price;
 
         const invoice = await invoiceModel.create({
-            invoiceId: nanoid(6),
+            invoiceId: invoiceNanoid(),
             productId: product._id,
             totalPrice: priceAfterDiscount * quantity + (tailoring.price *quantity),
             client: client._id,
@@ -358,6 +438,14 @@ export const buyProduct = async (req, res,next) => {
 
 
         product.stock -= quantity;
+        if (product.stock === 1) {
+            const notification = await notificationModel.create({
+                msg: `there is one piece in the stock of ${product.name}`,
+                type: "stock",
+            });
+            if (!notification)
+                return next(new AppError("something went wrong try again", 404));
+        }
         await product.save();
 
         const report = await reportModel.create({
@@ -384,24 +472,154 @@ export const buyProduct = async (req, res,next) => {
             return next(new AppError("something went wrong try again", 404));
 
 
-        return res.status(200).json({message: "success", invoice,transaction,report});
+        return res.status(200).json({message: "success", invoice,transaction,report,client});
     }
 };
+export const buyForMySelf = async (req, res,next) => {
+    const role = req.user.role;
+    if (role !== "cashier" && role !== "supervisor")
+        return next(new AppError("you are not allowed to buy for yourself", 400));
 
-export const getAllUsers = async (req, res,next) => {
-    const users = await userModel.find();
-    if (!users)
-        return next(new AppError("something went wrong try again", 400));
-    return res.status(200).json({message: "success", users});
-};
-
-export const getUserById = async (req, res,next) => {
-    const user = await userModel.findById(req.params.userId);
+    const user = await userModel.findById(req.user._id);
     if (!user)
-        return next(new AppError("user not found", 400));
-    return res.status(200).json({message: "success", user});
-};
+        return next(new AppError("user not found add it first", 400));
 
+    const product = await productModel.findById(req.body.productId);
+    if (!product)
+        return next(new AppError("product not found", 400));
+
+    //check if product in stock enough for the quantity
+    const {quantity} = req.body;
+    if (product.stock < quantity)
+        return next(new AppError("product not available in this quantity", 400));
+
+    // Step 3: Check if the product is available for tailoring
+    if (req.body.tailoring === "no" || req.body.tailoring === "No" || req.body.tailoring === "NO"){
+        let priceAfterDiscount = 0;
+        if (product.isDiscount === true)
+            priceAfterDiscount = product.price - (product.price * ((product.discount + user.discountPercentage) / 100));
+        else
+            priceAfterDiscount = product.price - (product.price * (user.discountPercentage / 100));
+
+        if (priceAfterDiscount * quantity > user.wallet)
+            return next(new AppError("you don't have enough money", 400));
+
+        const invoice = await invoiceModel.create({
+            invoiceId: invoiceNanoid(),
+            productId: product._id,
+            totalPrice: priceAfterDiscount * quantity,
+            client: user._id,
+            numberOfItems: quantity,
+            userId: user._id,
+            tailor: false,
+        });
+        if (!invoice)
+            return next(new AppError("something went wrong try again", 404));
+
+        product.stock -= quantity;
+        await product.save();
+
+        user.wallet -= priceAfterDiscount * quantity;
+        await user.save();
+
+        const report = await reportModel.create({
+            name: req.body.name,
+            description: req.body.description,
+            userID: req.user._id,
+            userName: req.user.name,
+            invoice: {
+                buyingDate: invoice.createdAt,
+                paymentMethod: "wallet",
+                invoiceId: invoice.invoiceId,
+                productName: product.name,
+                clientName: user.name,
+                clientPhone: user.phone,
+                tailored: req.body.tailoring,
+                productPrice: product.price,
+                numberOfItems: req.body.quantity,
+                totalPrice: invoice.totalPrice,
+            }
+        });
+        if (!report)
+            return next(new AppError("something went wrong try again", 404));
+
+        return res.status(200).json({message: "success", invoice,report,"client":user});
+    }
+    else {
+        const tailor = await userModel.findOne({role:"tailor",_id:req.body.tailorId});
+        if (!tailor)
+            return next(new AppError("tailor not found", 404));
+
+        const tailoring = await tailoringModel.create({
+            productId: product._id,
+            tailoringDescription: req.body.description,
+            price: req.body.price,
+            clientId: user._id,
+            tailorId: tailor._id,
+            userId: req.user._id,
+            status: "pending",
+        });
+
+        if (!tailoring)
+            return next(new AppError("something went wrong try again", 404));
+
+        let priceAfterDiscount;
+        if (product.isDiscount === true) {
+            priceAfterDiscount = product.price - (product.price * ((product.discount + user.discountPercentage) / 100));
+            // console.log(priceAfterDiscount,product.price,product.discount,user.discountPercentage,user.wallet);
+
+        }
+        else {
+            priceAfterDiscount = product.price - (product.price * (user.discountPercentage / 100));
+            // console.log(priceAfterDiscount,product.price,product.discount,user.discountPercentage,user.wallet);
+        }
+        const totalPrice = priceAfterDiscount * quantity + (tailoring.price *quantity)
+        if(totalPrice > user.wallet)
+            return next(new AppError("you don't have enough money", 400));
+
+        const invoice = await invoiceModel.create({
+            invoiceId: invoiceNanoid(),
+            productId: product._id,
+            totalPrice: totalPrice,
+            client: user._id,
+            numberOfItems: quantity,
+            userId: user._id,
+            tailored: true,
+        });
+        if (!invoice)
+            return next(new AppError("something went wrong try again", 404));
+
+        product.stock -= quantity;
+        await product.save();
+
+        user.wallet -= priceAfterDiscount * quantity;
+        await user.save();
+
+        const report = await reportModel.create({
+            name: req.body.name,
+            description: req.body.description,
+            userID: req.user._id,
+            userName: req.user.name,
+            invoice: {
+                buyingDate: invoice.createdAt,
+                paymentMethod: "wallet",
+                invoiceId: invoice.invoiceId,
+                productName: product.name,
+                clientName: user.name,
+                clientPhone: user.phone,
+                tailored: req.body.tailoring,
+                tailoringPrice: tailoring.price,
+                productPrice: product.price,
+                numberOfItems: req.body.quantity,
+                totalPrice: invoice.totalPrice,
+            }
+        });
+
+        if (!report)
+            return next(new AppError("something went wrong try again", 404));
+        return res.status(200).json({message: "success", invoice,report,"client":user});
+    }
+};
 export const returnProduct = async (req, res,next) => {
     const invoice = await invoiceModel.findOne({invoiceId:req.body.invoiceId})
         .populate({path: "userId", select: "name"})
@@ -463,36 +681,16 @@ export const returnProduct = async (req, res,next) => {
     });
 };
 
-export const getAllClients = async (req, res,next) => {
-    const page = parseInt(req.query.page) || 1; // Extract the page number from the query parameter
-    const pageSize = parseInt(req.query.pageSize) || 10; // Extract the page size from the query parameter
 
-    const totalDocuments = await productModel.countDocuments();
-    const totalPages = Math.ceil(totalDocuments / pageSize);
 
-    const skipDocuments = (page - 1) * pageSize;
 
-    const clients = await clientModel.find()
-        .skip(skipDocuments)
-        .limit(pageSize);
-    if (!clients)
-        return next(new AppError("something went wrong try again", 400));
-    return res.status(200).json({
-        message: "success",
-        clients,
-        currentPage: page,
-        totalPages,
-        pageSize
-    });
-};
-
+//Tailoring
 export const getAllTailors = async (req, res,next) => {
     const tailors = await userModel.find({role:"tailor"});
     if (!tailors)
         return next(new AppError("something went wrong try again", 400));
     return res.status(200).json({message: "success", tailors});
 };
-
 export const changeTailoringStatus = async (req, res,next) => {
     const tailoring = await tailoringModel.findById(req.params.tailoringId);
     if (!tailoring)
@@ -512,7 +710,6 @@ export const getAllTailorings = async (req, res,next) => {
         return next(new AppError("something went wrong try again", 400));
     return res.status(200).json({message: "success", tailoring});
 }
-
 export const getAllTailoringsForSpecificTailor = async (req, res,next) => {
     const tailoring = await tailoringModel.find({tailorId:req.params.tailorId})
         .populate({path: "productId", select: "name"})
@@ -525,174 +722,8 @@ export const getAllTailoringsForSpecificTailor = async (req, res,next) => {
     return res.status(200).json({message: "success", tailoring});
 }
 
-export const getClientByPhone = async (req, res,next) => {
-    const client = await clientModel.findOne({phone:req.params.phone});
-    if (!client)
-        return next(new AppError("client not found add it first", 400));
-    return res.status(200).json({message: "success",client});
-};
-
-export const getClientById = async (req, res,next) => {
-    const client = await clientModel.findById(req.params.clientId);
-    if (!client)
-        return next(new AppError("client not found add it first", 400));
-    return res.status(200).json({message: "success",client});
-};
 
 
-export const buyForMySelf = async (req, res,next) => {
-    const role = req.user.role;
-    if (role !== "cashier" && role !== "supervisor")
-        return next(new AppError("you are not allowed to buy for yourself", 400));
+//Notification
 
-    const user = await userModel.findById(req.user._id);
-    if (!user)
-        return next(new AppError("user not found add it first", 400));
 
-    const product = await productModel.findById(req.body.productId);
-    if (!product)
-        return next(new AppError("product not found", 400));
-
-    //check if product in stock enough for the quantity
-    const {quantity} = req.body;
-    if (product.stock < quantity)
-        return next(new AppError("product not available in this quantity", 400));
-
-    // Step 3: Check if the product is available for tailoring
-    if (req.body.tailoring === "no" || req.body.tailoring === "No" || req.body.tailoring === "NO"){
-        let priceAfterDiscount = 0;
-        if (product.isDiscount === true)
-            priceAfterDiscount = product.price - (product.price * ((product.discount + user.discountPercentage) / 100));
-        else
-            priceAfterDiscount = product.price - (product.price * (user.discountPercentage / 100));
-
-        if (priceAfterDiscount * quantity > user.wallet)
-            return next(new AppError("you don't have enough money", 400));
-
-        const invoice = await invoiceModel.create({
-            invoiceId: nanoid(6),
-            productId: product._id,
-            totalPrice: priceAfterDiscount * quantity,
-            client: user._id,
-            numberOfItems: quantity,
-            userId: user._id,
-            tailor: false,
-        });
-        if (!invoice)
-            return next(new AppError("something went wrong try again", 404));
-
-        product.stock -= quantity;
-        await product.save();
-
-        user.wallet -= priceAfterDiscount * quantity;
-        await user.save();
-
-        const report = await reportModel.create({
-            name: req.body.name,
-            description: req.body.description,
-            userID: req.user._id,
-            userName: req.user.name,
-            invoice: {
-                buyingDate: invoice.createdAt,
-                paymentMethod: "wallet",
-                invoiceId: invoice.invoiceId,
-                productName: product.name,
-                clientName: user.name,
-                clientPhone: user.phone,
-                tailored: req.body.tailoring,
-                productPrice: product.price,
-                numberOfItems: req.body.quantity,
-                totalPrice: invoice.totalPrice,
-            }
-        });
-        if (!report)
-            return next(new AppError("something went wrong try again", 404));
-
-        return res.status(200).json({message: "success", invoice});
-    }
-    else {
-        const tailor = await userModel.findOne({role:"tailor",_id:req.body.tailorId});
-        if (!tailor)
-            return next(new AppError("tailor not found", 404));
-
-        const tailoring = await tailoringModel.create({
-            productId: product._id,
-            tailoringDescription: req.body.description,
-            price: req.body.price,
-            clientId: user._id,
-            tailorId: tailor._id,
-            userId: req.user._id,
-            status: "pending",
-        });
-
-        if (!tailoring)
-            return next(new AppError("something went wrong try again", 404));
-
-        let priceAfterDiscount;
-        if (product.isDiscount === true) {
-            priceAfterDiscount = product.price - (product.price * ((product.discount + user.discountPercentage) / 100));
-            // console.log(priceAfterDiscount,product.price,product.discount,user.discountPercentage,user.wallet);
-
-        }
-        else {
-            priceAfterDiscount = product.price - (product.price * (user.discountPercentage / 100));
-            // console.log(priceAfterDiscount,product.price,product.discount,user.discountPercentage,user.wallet);
-        }
-        const totalPrice = priceAfterDiscount * quantity + (tailoring.price *quantity)
-        if(totalPrice > user.wallet)
-            return next(new AppError("you don't have enough money", 400));
-
-        const invoice = await invoiceModel.create({
-            invoiceId: nanoid(6),
-            productId: product._id,
-            totalPrice: totalPrice,
-            client: user._id,
-            numberOfItems: quantity,
-            userId: user._id,
-            tailored: true,
-        });
-        if (!invoice)
-            return next(new AppError("something went wrong try again", 404));
-
-        product.stock -= quantity;
-        await product.save();
-
-        user.wallet -= priceAfterDiscount * quantity;
-        await user.save();
-
-        const report = await reportModel.create({
-            name: req.body.name,
-            description: req.body.description,
-            userID: req.user._id,
-            userName: req.user.name,
-            invoice: {
-                buyingDate: invoice.createdAt,
-                paymentMethod: "wallet",
-                invoiceId: invoice.invoiceId,
-                productName: product.name,
-                clientName: user.name,
-                clientPhone: user.phone,
-                tailored: req.body.tailoring,
-                tailoringPrice: tailoring.price,
-                productPrice: product.price,
-                numberOfItems: req.body.quantity,
-                totalPrice: invoice.totalPrice,
-            }
-        });
-
-        if (!report)
-            return next(new AppError("something went wrong try again", 404));
-        return res.status(200).json({message: "success", invoice});
-    }
-};
-
-export const getAllInvoicesByClientsPhone = async (req, res,next) => {
-    const client = await clientModel.findOne({phone:req.body.phone});
-    if (!client)
-        return next(new AppError("client not found add it first", 400));
-
-    const invoices = await invoiceModel.find({client:client._id});
-    if (!invoices)
-        return next(new AppError("something went wrong try again", 400));
-    return res.status(200).json({message: "success",invoices});
-};

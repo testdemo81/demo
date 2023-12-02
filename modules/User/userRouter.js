@@ -11,6 +11,7 @@ const userRouter = Router();
 
 userRouter.post("/signup",
     fileUpload({}).single("image"),
+    // authorization([accessRoles.admin]),
     asyncHandler(userController.signUp));
 
 userRouter.post("/login",
@@ -92,7 +93,7 @@ userRouter.post("/buyformyself",
     authorization([accessRoles.supervisor,accessRoles.cashier]),
     asyncHandler(userController.buyForMySelf));
 
-userRouter.post("/invoice",
+userRouter.get("/invoice",
     asyncHandler(authentication()),
     authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
     asyncHandler(userController.getAllInvoicesByClientsPhone));
@@ -116,5 +117,7 @@ userRouter.get("/alltailoringsforspecifictailor/:tailorId",
     asyncHandler(authentication()),
     authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
     asyncHandler(userController.getAllTailoringsForSpecificTailor));
+
+
 
 export default userRouter;

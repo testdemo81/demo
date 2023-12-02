@@ -20,6 +20,7 @@ app.use(`/category`,indexRouter.categoryRouter);
 app.use(`/product`,indexRouter.productRouter);
 app.use(`/report`,indexRouter.reportRouter);
 app.use(`/retrieved`,indexRouter.retrievedRouter);
+app.use(`/notification`,indexRouter.notificationRouter);
 
 
 
