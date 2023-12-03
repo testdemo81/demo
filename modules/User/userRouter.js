@@ -5,6 +5,7 @@ import authentication from "../../middleware/authentication.js";
 import asyncHandler from "../../utils/ErrorHandling/asyncHandler.js";
 import {fileUpload} from "../../services/multer.js";
 import accessRoles from "../../EndPoints.js";
+import {changeTailoringStatusToAccepted} from "./userController.js";
 
 
 const userRouter = Router();
@@ -106,7 +107,7 @@ userRouter.get("/alltailorings",
 userRouter.patch("/tailoring/:tailoringId",
     asyncHandler(authentication()),
     authorization([accessRoles.tailor]),
-    asyncHandler(userController.changeTailoringStatus));
+    asyncHandler(userController.changeTailoringStatusToAccepted));
 
 userRouter.get("/alltailors",
     asyncHandler(authentication()),

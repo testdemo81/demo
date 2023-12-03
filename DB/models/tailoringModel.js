@@ -68,7 +68,7 @@ const tailoringSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'accepted'],
+        enum: ['pending', 'accepted','rejected', 'completed'],
         default: 'pending'
     },
 },{

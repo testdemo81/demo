@@ -1,5 +1,6 @@
 import productModel from "../../DB/models/productModel.js";
 import categoryModel from "../../DB/models/categoryModel.js";
+import notificationModel from "../../DB/models/notificationModel.js";
 import AppError from "../../utils/ErrorHandling/AppError.js";
 import {qrCode_Function} from "../../services/qrcode.js";
 import cloudinary from "../../services/cloudinary.js";
@@ -76,9 +77,19 @@ export const addProduct = async (req, res ,next) => {
         });
     req.body.image = {path:secure_url,publicId:public_id};
 
+
     const product = await productModel.create(req.body);
     if (!product)
         return next(new AppError("something went wrong try again", 400));
+
+    if (product.stock === 1) {
+        const notification = await notificationModel.create({
+            msg: `there is one piece in the stock of ${product.name}`,
+            type: "stock",
+        });
+        if (!notification)
+            return next(new AppError("something went wrong try again", 404));
+    }
 
     return res.json({message: "success",product});
 };

@@ -78,7 +78,6 @@ export const signUp = async (req, res,next) => {
 
     return res.status(200).json({message: "welcome to our family", user});
 };
-
 /**
  * Log in an existing user.
  *
@@ -107,7 +106,6 @@ export const logIn = async (req, res,next) => {
     const token = createToken({id: user._id});
     return res.status(200).json({message: "login successfully", token});
 };
-
 export const logInForTheRest = async (req, res,next) => {
     const {email,password} = req.body;
     const user = await userModel.findOne({email});
@@ -123,7 +121,6 @@ export const logInForTheRest = async (req, res,next) => {
     const token = createToken({id: user._id});
     return res.status(200).json({message: "login successfully", token});
 };
-
 /**
  * Deletes a user by their ID.
  *
@@ -147,7 +144,6 @@ export const deleteUser = async (req, res,next) => {
     else
         return next(new AppError("something went wrong try again", 400));
 };
-
 /**
  * Update user information and profile image.
  *
@@ -191,21 +187,18 @@ export const updateUser = async (req, res,next) => {
         return next(new AppError("something went wrong try again", 400));
     return res.status(200).json({message: "success"});
 };
-
 export const getUserInfoWhileLogin = async (req, res,next) => {
     const user = await userModel.findById(req.user.id).select("-password -createdAt -updatedAt -__v")
     if (!user)
         return next(new AppError("user not found", 400));
     return res.status(200).json({message: "success",user});
 };
-
 export const getAllUsers = async (req, res,next) => {
     const users = await userModel.find();
     if (!users)
         return next(new AppError("something went wrong try again", 400));
     return res.status(200).json({message: "success", users});
 };
-
 export const getUserById = async (req, res,next) => {
     const user = await userModel.findById(req.params.userId);
     if (!user)
@@ -691,7 +684,7 @@ export const getAllTailors = async (req, res,next) => {
         return next(new AppError("something went wrong try again", 400));
     return res.status(200).json({message: "success", tailors});
 };
-export const changeTailoringStatus = async (req, res,next) => {
+export const changeTailoringStatusToAccepted = async (req, res,next) => {
     const tailoring = await tailoringModel.findById(req.params.tailoringId);
     if (!tailoring)
         return next(new AppError("tailoring not found", 400));
