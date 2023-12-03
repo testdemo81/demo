@@ -262,7 +262,7 @@ export const getClientById = async (req, res,next) => {
     return res.status(200).json({message: "success",client});
 };
 export const getAllInvoicesByClientsPhone = async (req, res,next) => {
-    const client = await clientModel.findOne({phone:req.body.phone});
+    const client = await clientModel.findOne({phone:req.params.phone});
     if (!client)
         return next(new AppError("client not found add it first", 400));
 
@@ -715,8 +715,5 @@ export const getAllTailoringsForSpecificTailor = async (req, res,next) => {
     return res.status(200).json({message: "success", tailoring});
 }
 
-
-
-//Notification
 
 

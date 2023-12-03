@@ -94,7 +94,7 @@ userRouter.post("/buyformyself",
     authorization([accessRoles.supervisor,accessRoles.cashier]),
     asyncHandler(userController.buyForMySelf));
 
-userRouter.get("/invoice",
+userRouter.get("/invoice/:phone",
     asyncHandler(authentication()),
     authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
     asyncHandler(userController.getAllInvoicesByClientsPhone));
