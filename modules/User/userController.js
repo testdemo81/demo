@@ -690,8 +690,40 @@ export const changeTailoringStatusToAccepted = async (req, res,next) => {
         return next(new AppError("tailoring not found", 400));
     tailoring.status = "accepted";
     await tailoring.save();
-    return res.status(200).json({message: "success",tailoring});
+    const tailor = await userModel.findById(tailoring.tailorId);
+    if (!tailor)
+        return next(new AppError("something went wrong try aga", 400));
+    return res.status(200).json({message: "success",tailoring,tailor});
 }
+// export const changeTailoringStatusToRejected = async (req, res,next) => {
+//     const tailoring = await tailoringModel.findById(req.params.tailoringId);
+//     if (!tailoring)
+//         return next(new AppError("tailoring not found", 400));
+//     tailoring.status = "rejected";
+//     await tailoring.save();
+//     const tailor = await userModel.findById(tailoring.tailorId);
+//     if (!tailor)
+//         return next(new AppError("something went wrong try again", 400));
+//     return res.status(200).json({message: "success",tailoring,tailor});
+// }
+export const changeTailoringStatusToCompleted = async (req, res,next) => {
+    const tailoring = await tailoringModel.findById(req.params.tailoringId);
+    if (!tailoring)
+        return next(new AppError("tailoring not found", 400));
+    tailoring.status = "completed";
+    await tailoring.save();
+    const tailor = await userModel.findById(tailoring.tailorId);
+    if (!tailor)
+        return next(new AppError("something went wrong try again", 400));
+    const notification = await notificationModel.create({
+        msg: `Tailor ${tailor.name} completed tailoring`,
+        type: "tailor",
+    });
+    if (!notification)
+        return next(new AppError("something went wrong try again", 400));
+    return res.status(200).json({message: "success",notification,tailoring,tailor});
+};
+
 export const getAllTailorings = async (req, res,next) => {
     const tailoring = await tailoringModel.find()
         .populate({path: "productId", select: "name"})

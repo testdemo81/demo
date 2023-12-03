@@ -99,15 +99,30 @@ userRouter.get("/invoice/:phone",
     authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
     asyncHandler(userController.getAllInvoicesByClientsPhone));
 
+
+
+////////////////////////////////////////////////////////////
 userRouter.get("/alltailorings",
     asyncHandler(authentication()),
     authorization([accessRoles.supervisor,accessRoles.cashier,accessRoles.tailor,accessRoles.seller,accessRoles.admin]),
     asyncHandler(userController.getAllTailorings));
 
-userRouter.patch("/tailoring/:tailoringId",
+////////////////////////////////////////////////////////////
+userRouter.patch("/tailoring/accept/:tailoringId",
     asyncHandler(authentication()),
     authorization([accessRoles.tailor]),
     asyncHandler(userController.changeTailoringStatusToAccepted));
+
+// the simulation is not full so hide it for now
+// userRouter.patch("/tailoring/reject/:tailoringId",
+//     asyncHandler(authentication()),
+//     authorization([accessRoles.tailor]),
+//     asyncHandler(userController.changeTailoringStatusToRejected));
+
+userRouter.patch("/tailoring/complete/:tailoringId",
+    asyncHandler(authentication()),
+    authorization([accessRoles.tailor]),
+    asyncHandler(userController.changeTailoringStatusToCompleted));
 
 userRouter.get("/alltailors",
     asyncHandler(authentication()),
