@@ -6,10 +6,11 @@ import AppError from "../../utils/ErrorHandling/AppError.js";
 
 export const returnAllRetrieved = async (req, res, next) => {
     const retrieved = await retrievedModel.find({}).sort({"createdAt": -1})
-        .populate({path: "productId", select: "name"})
         .populate({path: "invoiceId", select: "invoiceId"})
+        .populate({path: "productId", select: "name"})
         .populate({path: "userId", select: "name"})
         .populate({path: "clientId", select: "name"});
+    // console.log(retrieved[0].invoiceId)
     if (!retrieved)
         return next(new AppError("something went wrong try again", 400));
     return res.json({message: "success", retrieved});

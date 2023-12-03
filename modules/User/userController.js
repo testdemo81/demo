@@ -659,7 +659,7 @@ export const returnProduct = async (req, res,next) => {
     product.stock += invoice.numberOfItems;
     await product.save();
 
-    await invoiceModel.findByIdAndDelete(invoice._id);
+    // await invoiceModel.findByIdAndDelete(invoice._id);
     // const flagInvoice = await invoice.deleteOne();
     // if (flagInvoice.deletedCount === 0)
     //     return next(new AppError("this invoice is already returned", 400));
@@ -723,7 +723,6 @@ export const changeTailoringStatusToCompleted = async (req, res,next) => {
         return next(new AppError("something went wrong try again", 400));
     return res.status(200).json({message: "success",notification,tailoring,tailor});
 };
-
 export const getAllTailorings = async (req, res,next) => {
     const tailoring = await tailoringModel.find()
         .populate({path: "productId", select: "name"})
