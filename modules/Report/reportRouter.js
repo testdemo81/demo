@@ -251,7 +251,7 @@ reportRouter.get("/getallreportsbyuserid/:userId",
  *                   type: string
  *                   description: An error message.
  */
-reportRouter.get("/getallreportsbydate",
+reportRouter.post("/getallreportsbydate",
     asyncHandler(authentication()),
     authorization([accessRoles.admin, accessRoles.cashier, accessRoles.seller, accessRoles.tailor, accessRoles.supervisor]),
     asyncHandler(reportController.getAllReportByDate));
