@@ -707,16 +707,20 @@ export const changeTailoringStatusToAccepted = async (req, res,next) => {
 //     return res.status(200).json({message: "success",tailoring,tailor});
 // }
 export const changeTailoringStatusToCompleted = async (req, res,next) => {
-    const tailoring = await tailoringModel.findById(req.params.tailoringId);
+    const tailoring = await tailoringModel.findById(req.params.tailoringId)
     if (!tailoring)
         return next(new AppError("tailoring not found", 400));
+    const client = await clientModel.findById(tailoring.clientId);
+    if (!client)
+        return next(new AppError("something went wrong try again", 400));
+
     tailoring.status = "completed";
     await tailoring.save();
     const tailor = await userModel.findById(tailoring.tailorId);
     if (!tailor)
         return next(new AppError("something went wrong try again", 400));
     const notification = await notificationModel.create({
-        msg: `Tailor ${tailor.name} completed tailoring`,
+        msg: `Tailor ${tailor.name} completed tailoring for Client Named ${client.name}`,
         type: "tailor",
     });
     if (!notification)
