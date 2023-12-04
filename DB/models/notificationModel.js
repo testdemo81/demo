@@ -5,7 +5,6 @@ const notificationSchema = new mongoose.Schema({
     msg: {
         type: String,
         required: [true, 'MSG required'],
-        unique:true,
     },
     type: {
         type: String,
