@@ -387,7 +387,7 @@ export const buyProduct = async (req, res,next) => {
 
         const tailoring = await tailoringModel.create({
             productId: product._id,
-            tailoringDescription: req.body.description,
+            tailoringDescription: req.body.tailoringDescription,
             price: req.body.price,
             clientId: client._id,
             tailorId: tailor._id,
@@ -545,7 +545,7 @@ export const buyForMySelf = async (req, res,next) => {
 
         const tailoring = await tailoringModel.create({
             productId: product._id,
-            tailoringDescription: req.body.description,
+            tailoringDescription: req.body.tailoringDescription,
             price: req.body.price,
             clientId: user._id,
             tailorId: tailor._id,
